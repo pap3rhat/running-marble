@@ -6,7 +6,13 @@ public class PlayerMovement : MonoBehaviour
 {
 
     private Rigidbody _playerRigidBody;
-    [SerializeField, Range(0, 1000)] private float _speed = 5f;
+    
+    // planar movement
+    [SerializeField, Range(0, 50)] private float _speed = 10f;
+
+    // jumping
+    private bool _isGrounded = false;
+    [SerializeField] private float _jumpForce = 4.0f;
 
     // Start is called before the first frame update
     void Start()
@@ -14,11 +20,22 @@ public class PlayerMovement : MonoBehaviour
         _playerRigidBody = GetComponent<Rigidbody>();
     }
 
-    // Update is called once per frame
     void Update()
     {
+        // planar movement
         Vector3 movementDierection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
-
         _playerRigidBody.AddForce(movementDierection * _speed * Time.deltaTime, ForceMode.Impulse);
+
+        // jumping
+        if(_isGrounded && Input.GetKeyDown(KeyCode.Space))
+        {
+            _playerRigidBody.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
+            _isGrounded = false;
+        }
+    }
+
+    private void OnCollisionStay(Collision collision)
+    {
+        _isGrounded = true;
     }
 }
