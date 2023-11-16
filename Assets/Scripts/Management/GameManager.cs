@@ -18,7 +18,7 @@ public class GameManager : MonoBehaviour
 
     // Countdown
     private float _startTime;
-    private float _timerLength = 3f;
+    private float _timerLength = 60f;
 
     public UnityEvent<float> TimeLeft = new();
     public UnityEvent<bool> TimeOut = new();
@@ -38,6 +38,11 @@ public class GameManager : MonoBehaviour
     // End state
     public UnityEvent<bool> EndState = new();
 
+    // Goal destination
+    [SerializeField] private GameObject _goal;
+    private Vector3 _goalPosition;
+    private bool _playerWon = false;
+
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
     void Start()
@@ -48,15 +53,18 @@ public class GameManager : MonoBehaviour
         _startTime = (float)Math.Round(Time.time, 2);
         // Lifes
         _remainingLifes = _startingLifes;
+        // Goal
+        _goalPosition = _goal.transform.position;
     }
 
     void Update()
     {
-        if (!_playerAlive)
+        if (!_playerAlive || _playerWon)
         {
             return;
         }
 
+        CheckWin();
         CheckDeath();
         CountdownUpdate();
     }
@@ -123,11 +131,26 @@ public class GameManager : MonoBehaviour
         }
 
         // End game if dead
-        if(_remainingLifes == 0)
+        if (_remainingLifes == 0)
         {
             FallDeath.Invoke(false);
             TimeOut.Invoke(false);
             EndState.Invoke(false);
+        }
+    }
+
+    /*
+     * Checks if player won by meassuring player distance to goal.
+     */
+    private void CheckWin()
+    {
+        Debug.Log(Vector3.Distance(_currentPlayerObject.transform.position, _goalPosition));
+
+        if (Vector3.Distance(_currentPlayerObject.transform.position, _goalPosition) < 0.5)
+        {
+            _currentPlayerMovementScript.enabled = false;
+            _playerWon = true;
+            EndState.Invoke(true);
         }
     }
 
