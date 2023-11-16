@@ -1,15 +1,22 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class GameManager : MonoBehaviour
 {
     // Countdown
-    [SerializeField] private TextMeshProUGUI _countdownText;
     private float _startTime;
-    private float _timerLength = 60f;
+    private float _timerLength = 0.5f;
+    public UnityEvent<float> TimeLeft = new();
+    public UnityEvent TimeOut = new();
+
+    // Lifes
+    private int _startingLifes = 3;
+    private int _remainingLifes;
+    public UnityEvent<int,int> PlayerDied = new();
+
+
+    bool goind = true;
 
 
     // Start is called before the first frame update
@@ -17,6 +24,9 @@ public class GameManager : MonoBehaviour
     {
         // Countdown
         _startTime = (float)Math.Round(Time.time, 2);
+
+        // Lifes
+        _remainingLifes = _startingLifes;
     }
 
     // Update is called once per frame
@@ -27,13 +37,16 @@ public class GameManager : MonoBehaviour
 
     private void CountdownUpdate()
     {
-        if(Time.time - _startTime >= _timerLength)
+        if (Time.time - _startTime >= _timerLength && goind)
         {
-            _countdownText.text = $"Time Out!";
+            PlayerDied.Invoke(_startingLifes, _remainingLifes);
+            _remainingLifes--;
+            TimeOut.Invoke();
+            goind = false; 
         }
         else
         {
-            _countdownText.text = $"Time: {Time.time:F2}";
+            TimeLeft.Invoke((float)Math.Round(_timerLength - Time.time, 2));
         }
     }
 }
