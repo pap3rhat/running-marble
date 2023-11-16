@@ -3,22 +3,24 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
-
 public class GameManager : MonoBehaviour
 {
+    // Camera
+    [SerializeField] private CinemachineStateDrivenCamera _stateCamera;
+    [SerializeField] private Animator _animator;
+    private CameraEnum _camEnum = CameraEnum.thirdPerson;
+
     // Player information
     [SerializeField] private GameObject _playerPrefab;
     [SerializeField] private Vector3 _playerSpawnPosition;
     [SerializeField] private float _playerYValueCondition;
-    [SerializeField] private CinemachineVirtualCamera _camera;
 
     private GameObject _currentPlayerObject;
     private PlayerMovement _currentPlayerMovementScript;
 
-
     // Countdown
     private float _startTime;
-    private float _timerLength = 60f;
+    private float _timerLength = 500f;
 
     public UnityEvent<float> TimeLeft = new();
     public UnityEvent<bool> TimeOut = new();
@@ -47,6 +49,8 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        // Camera
+        _animator.Play("ThirdPersonCamera");
         // Player
         SpawnPlayer();
         // Countdown
@@ -66,6 +70,7 @@ public class GameManager : MonoBehaviour
 
         CheckWin();
         CheckDeath();
+       // CheckCameraSwitch();
         CountdownUpdate();
     }
 
@@ -144,8 +149,6 @@ public class GameManager : MonoBehaviour
      */
     private void CheckWin()
     {
-        Debug.Log(Vector3.Distance(_currentPlayerObject.transform.position, _goalPosition));
-
         if (Vector3.Distance(_currentPlayerObject.transform.position, _goalPosition) < 0.5)
         {
             _currentPlayerMovementScript.enabled = false;
@@ -156,13 +159,25 @@ public class GameManager : MonoBehaviour
 
 
     /* 
+     * Checks if camera need to be switched. Switches it.
+     */
+    private void CheckCameraSwitch()
+    {
+        //if(_remainingLifes == 2 && _camEnum == CameraEnum.thirdPerson)
+        //{
+        //    _animator.Play("SideCamera");
+        //    _camEnum = CameraEnum.TopDown;
+        //}
+    }
+
+    /* 
      * Handles spawning of player.
      */
     private void SpawnPlayer()
     {
         _currentPlayerObject = Instantiate(_playerPrefab, _playerSpawnPosition, _playerPrefab.transform.rotation);
-        _camera.Follow = _currentPlayerObject.transform;
-        _camera.LookAt = _currentPlayerObject.transform;
+        _stateCamera.Follow = _currentPlayerObject.transform;
+        _stateCamera.LookAt = _currentPlayerObject.transform;
         _currentPlayerMovementScript = _currentPlayerObject.GetComponent<PlayerMovement>();
     }
 
