@@ -1,52 +1,154 @@
+using Cinemachine;
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 
 public class GameManager : MonoBehaviour
 {
+    // Player information
+    [SerializeField] private GameObject _playerPrefab;
+    [SerializeField] private Vector3 _playerSpawnPosition;
+    [SerializeField] private float _playerYValueCondition;
+    [SerializeField] private CinemachineVirtualCamera _camera;
+
+    private GameObject _currentPlayerObject;
+    private PlayerMovement _currentPlayerMovementScript;
+
+
     // Countdown
     private float _startTime;
-    private float _timerLength = 0.5f;
+    private float _timerLength = 3f;
+
     public UnityEvent<float> TimeLeft = new();
-    public UnityEvent TimeOut = new();
+    public UnityEvent<bool> TimeOut = new();
 
     // Lifes
     private int _startingLifes = 3;
     private int _remainingLifes;
-    public UnityEvent<int,int> PlayerDied = new();
 
+    // Respawn
+    private bool _playerAlive = true;
+    public UnityEvent<int, int> PlayerDied = new();
+    public UnityEvent RespawnCountdown = new();
 
-    bool goind = true;
+    // Fall death
+    public UnityEvent<bool> FallDeath = new();
 
+    // End state
+    public UnityEvent<bool> EndState = new();
 
-    // Start is called before the first frame update
+    /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
     void Start()
     {
+        // Player
+        SpawnPlayer();
         // Countdown
         _startTime = (float)Math.Round(Time.time, 2);
-
         // Lifes
         _remainingLifes = _startingLifes;
     }
 
-    // Update is called once per frame
     void Update()
     {
+        if (!_playerAlive)
+        {
+            return;
+        }
+
+        CheckDeath();
         CountdownUpdate();
     }
 
+    /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+    /*
+     * Updates time counter.
+     */
     private void CountdownUpdate()
     {
-        if (Time.time - _startTime >= _timerLength && goind)
+        TimeLeft.Invoke((float)Math.Round(_timerLength - Time.time + _startTime, 2));
+    }
+
+    /*
+     * Checks if player died this frame.
+     */
+    private void CheckDeath()
+    {
+        // Time ran out
+        if (Time.time - _startTime >= _timerLength)
         {
-            PlayerDied.Invoke(_startingLifes, _remainingLifes);
-            _remainingLifes--;
-            TimeOut.Invoke();
-            goind = false; 
+            TimeOut.Invoke(true);
+            StartCoroutine(Restart());
         }
-        else
+        // Player fell down
+        else if (_currentPlayerObject.transform.position.y < _playerYValueCondition)
         {
-            TimeLeft.Invoke((float)Math.Round(_timerLength - Time.time, 2));
+            FallDeath.Invoke(true);
+            StartCoroutine(Restart());
         }
+    }
+
+    /*
+     * Restarts the game if enough lifes are left.
+     * TODO: REMOVE THIS UGLY SPHAGET
+     */
+    private IEnumerator Restart()
+    {
+        // Setting player to dead
+        _playerAlive = false;
+        PlayerDied.Invoke(_startingLifes, _remainingLifes);
+        _remainingLifes--;
+        DestroyPlayer();
+
+        // Use next life if possible
+        if (_remainingLifes > 0)
+        {
+            // Respawning player
+            SpawnPlayer();
+            _currentPlayerMovementScript.enabled = false;
+            RespawnCountdown.Invoke();
+
+            yield return new WaitForSeconds(1);
+            FallDeath.Invoke(false);
+            TimeOut.Invoke(false);
+            yield return new WaitForSeconds(4);
+
+            _currentPlayerMovementScript.enabled = true;
+            _playerAlive = true;
+
+            // Setting time back
+            _startTime = (float)Math.Round(Time.time, 2);
+        }
+
+        // End game if dead
+        if(_remainingLifes == 0)
+        {
+            FallDeath.Invoke(false);
+            TimeOut.Invoke(false);
+            EndState.Invoke(false);
+        }
+    }
+
+
+    /* 
+     * Handles spawning of player.
+     */
+    private void SpawnPlayer()
+    {
+        _currentPlayerObject = Instantiate(_playerPrefab, _playerSpawnPosition, _playerPrefab.transform.rotation);
+        _camera.Follow = _currentPlayerObject.transform;
+        _camera.LookAt = _currentPlayerObject.transform;
+        _currentPlayerMovementScript = _currentPlayerObject.GetComponent<PlayerMovement>();
+    }
+
+    /*
+     * Handles destroying of player
+     */
+    private void DestroyPlayer()
+    {
+        Destroy(_currentPlayerObject);
+        Destroy(_currentPlayerMovementScript);
     }
 }

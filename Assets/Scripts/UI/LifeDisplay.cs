@@ -10,11 +10,15 @@ public class LifeDisplay : MonoBehaviour
     [SerializeField] private List<GameObject> _lifesIcons;
     [SerializeField] private Sprite _deadLifeIcon;
 
+    /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
     // Start is called before the first frame update
     void Start()
     {
         _gameManager.PlayerDied.AddListener(OnPlayerDied);
     }
+
+    /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
     /*
      * Handles life display when player dies.
