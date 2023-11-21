@@ -117,7 +117,7 @@ public class GameManager : MonoBehaviour
         {
             // Respawning player
             SpawnPlayer();
-            _currentPlayerMovementScript.enabled = false;
+           // _currentPlayerMovementScript.enabled = false;
             RespawnCountdown.Invoke();
 
             yield return new WaitForSeconds(1);
@@ -125,7 +125,7 @@ public class GameManager : MonoBehaviour
             TimeOut.Invoke(false);
             yield return new WaitForSeconds(4);
 
-            _currentPlayerMovementScript.enabled = true;
+           // _currentPlayerMovementScript.enabled = true;
             _playerAlive = true;
 
             // Setting time back
@@ -148,7 +148,7 @@ public class GameManager : MonoBehaviour
     {
         if (Vector3.Distance(_currentPlayerObject.transform.position, _goalPosition) < 0.5)
         {
-            _currentPlayerMovementScript.enabled = false;
+            //_currentPlayerMovementScript.enabled = false;
             _playerWon = true;
             EndState.Invoke(true);
         }
@@ -168,7 +168,7 @@ public class GameManager : MonoBehaviour
         _currentPlayerObject.GetComponent<CameraTrigger>().StateCamera = _stateCamera;
         _currentPlayerObject.GetComponent<CameraTrigger>().Animator = _animator;
 
-        _currentPlayerMovementScript = _currentPlayerObject.GetComponent<PlayerMovement>();
+       // _currentPlayerMovementScript = _currentPlayerObject.GetComponent<PlayerMovement>();
     }
 
     /*
@@ -177,6 +177,6 @@ public class GameManager : MonoBehaviour
     private void DestroyPlayer()
     {
         Destroy(_currentPlayerObject);
-        Destroy(_currentPlayerMovementScript);
+        //Destroy(_currentPlayerMovementScript);
     }
 }
