@@ -6,13 +6,13 @@ public class PlayerMovement : MonoBehaviour
 {
 
     private Rigidbody _playerRigidBody;
-    
+
     // planar movement
     [SerializeField, Range(0, 50)] private float _speed = 10f;
 
     // jumping
     private bool _isGrounded = false;
-    [SerializeField] private float _jumpForce = 4.0f;
+    [SerializeField] private float _jumpForce = 7.0f;
 
     // Start is called before the first frame update
     void Start()
@@ -27,7 +27,7 @@ public class PlayerMovement : MonoBehaviour
         _playerRigidBody.AddForce(movementDierection * _speed * Time.deltaTime, ForceMode.Impulse);
 
         // jumping
-        if(_isGrounded && Input.GetKeyDown(KeyCode.Space))
+        if (_isGrounded && Input.GetKeyDown(KeyCode.Space))
         {
             _playerRigidBody.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
             _isGrounded = false;
@@ -37,5 +37,15 @@ public class PlayerMovement : MonoBehaviour
     private void OnCollisionStay(Collision collision)
     {
         _isGrounded = true;
+    }
+
+    void OnCollisionEnter()
+    {
+        _isGrounded = true;
+    }
+
+    void OnCollisionExit()
+    {
+        _isGrounded = false;
     }
 }
