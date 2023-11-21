@@ -8,7 +8,6 @@ public class GameManager : MonoBehaviour
     // Camera
     [SerializeField] private CinemachineStateDrivenCamera _stateCamera;
     [SerializeField] private Animator _animator;
-    private CameraEnum _camEnum = CameraEnum.thirdPerson;
 
     // Player information
     [SerializeField] private GameObject _playerPrefab;
@@ -49,8 +48,6 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        // Camera
-        _animator.Play("ThirdPersonCamera");
         // Player
         SpawnPlayer();
         // Countdown
@@ -159,25 +156,18 @@ public class GameManager : MonoBehaviour
 
 
     /* 
-     * Checks if camera need to be switched. Switches it.
-     */
-    private void CheckCameraSwitch()
-    {
-        //if(_remainingLifes == 2 && _camEnum == CameraEnum.thirdPerson)
-        //{
-        //    _animator.Play("SideCamera");
-        //    _camEnum = CameraEnum.TopDown;
-        //}
-    }
-
-    /* 
      * Handles spawning of player.
      */
     private void SpawnPlayer()
     {
         _currentPlayerObject = Instantiate(_playerPrefab, _playerSpawnPosition, _playerPrefab.transform.rotation);
+        
+        // Camera set up
         _stateCamera.Follow = _currentPlayerObject.transform;
         _stateCamera.LookAt = _currentPlayerObject.transform;
+        _currentPlayerObject.GetComponent<CameraTrigger>().StateCamera = _stateCamera;
+        _currentPlayerObject.GetComponent<CameraTrigger>().Animator = _animator;
+
         _currentPlayerMovementScript = _currentPlayerObject.GetComponent<PlayerMovement>();
     }
 
