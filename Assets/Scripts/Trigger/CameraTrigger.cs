@@ -17,8 +17,11 @@ public class CameraTrigger : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        string[] parts = other.name.Split(" ");
-        _animator.Play(parts[0]);
+        if (other.name.ToLower().Contains("camera"))
+        {
+            string[] parts = other.name.Split(" ");
+            _animator.Play(parts[0]);
+        }
     }
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
