@@ -271,3 +271,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _colliderTrigger: {fileID: 5707223741510582756}
   _mirrorCam: {fileID: 8993990436973288627}
+  _mirrorCamObj: {fileID: 0}
+  _shader: {fileID: 0}
+  _renderTextureSize: {x: 555, y: 1000}

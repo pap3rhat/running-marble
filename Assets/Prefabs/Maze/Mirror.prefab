@@ -74,8 +74,8 @@ Camera:
   m_GameObject: {fileID: 932248957546731368}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 1, g: 1, b: 1, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -202,8 +202,8 @@ Camera:
   m_GameObject: {fileID: 4853688443743562046}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 1, g: 1, b: 1, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -211,7 +211,7 @@ Camera:
   m_ShutterSpeed: 0.005
   m_Aperture: 16
   m_FocusDistance: 10
-  m_FocalLength: 50
+  m_FocalLength: 28.970562
   m_BladeCount: 5
   m_Curvature: {x: 2, y: 11}
   m_BarrelClipping: 0.25
@@ -357,6 +357,9 @@ MonoBehaviour:
   _colliderTrigger: {fileID: 4287815923353016454}
   _mirrorCam: {fileID: 6756440316334455092}
   _mirrorCamObj: {fileID: 7975725841221728112}
+  _shader: {fileID: -6465566751694194690, guid: 4e4a7912ee9eb3e45b6088496b2667ae,
+    type: 3}
+  _renderTextureSize: {x: 1000, y: 555}
 --- !u!1 &6093272915192562792
 GameObject:
   m_ObjectHideFlags: 0
@@ -599,6 +602,9 @@ MonoBehaviour:
   _colliderTrigger: {fileID: 2189056591370257252}
   _mirrorCam: {fileID: 336926587451027800}
   _mirrorCamObj: {fileID: 402833658812345559}
+  _shader: {fileID: -6465566751694194690, guid: 4e4a7912ee9eb3e45b6088496b2667ae,
+    type: 3}
+  _renderTextureSize: {x: 1000, y: 555}
 --- !u!1 &8292611790484431090
 GameObject:
   m_ObjectHideFlags: 0
