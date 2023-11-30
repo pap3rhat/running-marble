@@ -11,6 +11,7 @@ public class MirrorTrigger : MonoBehaviour
     [SerializeField] private GameObject _mirrorCamObj;
 
     // Effect
+    [SerializeField] private bool _effectOn;
     [SerializeField] private Shader _shader;
     private Material _material;
 
@@ -39,13 +40,12 @@ public class MirrorTrigger : MonoBehaviour
 
         _isActive = false;
 
-
-        RenderPipelineManager.endContextRendering += OnEndContextRendering;
+     //   if (_effectOn) RenderPipelineManager.endContextRendering += OnEndContextRendering;
+  
     }
 
     void OnEndContextRendering(ScriptableRenderContext context, List<Camera> cameras)
     {
-
         if (!_isActive) return;
 
         // Applying effect
@@ -70,37 +70,39 @@ public class MirrorTrigger : MonoBehaviour
         //    //_renderer.material.SetTexture("_BaseMap", _renderTarget);
     }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        // Create render target
-        _renderTarget = new RenderTexture((int)_renderTextureSize.x, (int)_renderTextureSize.y, 16, RenderTextureFormat.ARGB32);
-        _renderTarget.Create();
+    //private void OnTriggerEnter(Collider other)
+    //{
+    //    // Create render target
+    //    _renderTarget = new RenderTexture((int)_renderTextureSize.x, (int)_renderTextureSize.y, 16, RenderTextureFormat.ARGB32);
+    //    _renderTarget.Create();
 
-        // Apply render target texture to material
-        _renderer.material.SetTexture("_BaseMap", _renderTarget);
+    //    // Apply render target texture to material
+    //    _renderer.material.SetTexture("_BaseMap", _renderTarget);
 
-        // Set up camera
-        _mirrorCam.targetTexture = _renderTarget;
-        _mirrorCamObj.SetActive(true);
+    //    //_renderer.material.SetTexture("_renderTarget", _renderTarget);
 
-        // Set active
-        _isActive = true;
-    }
+    //    // Set up camera
+    //    _mirrorCam.targetTexture = _renderTarget;
+    //    _mirrorCamObj.SetActive(true);
 
-    private void OnTriggerExit(Collider other)
-    {
-        // Apply defaul texture to material
-        _renderer.material.SetTexture("_BaseMap", _defaultTexture);
+    //    // Set active
+    //    _isActive = true;
+    //}
 
-        // Disable camera
-        _mirrorCamObj.SetActive(false);
+    //private void OnTriggerExit(Collider other)
+    //{
+    //    // Apply defaul texture to material
+    //    _renderer.material.SetTexture("_BaseMap", _defaultTexture);
 
-        // Clean up
-        if (_renderTarget) _renderTarget.Release();
+    //    // Disable camera
+    //    _mirrorCamObj.SetActive(false);
 
-        // Set inactive
-        _isActive = false;
-    }
+    //    // Clean up
+    //    if (_renderTarget) _renderTarget.Release();
+
+    //    // Set inactive
+    //    _isActive = false;
+    //}
 
     private void OnDestroy()
     {
