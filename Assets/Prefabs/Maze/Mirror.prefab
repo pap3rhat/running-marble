@@ -357,9 +357,6 @@ MonoBehaviour:
   _colliderTrigger: {fileID: 4287815923353016454}
   _mirrorCam: {fileID: 6756440316334455092}
   _mirrorCamObj: {fileID: 7975725841221728112}
-  _effectOn: 0
-  _shader: {fileID: -6465566751694194690, guid: 4e4a7912ee9eb3e45b6088496b2667ae,
-    type: 3}
   _renderTextureSize: {x: 1141, y: 940}
 --- !u!1 &6093272915192562792
 GameObject:
@@ -458,7 +455,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b052cde0a860ea44851e4c5488e5aeb, type: 2}
+  - {fileID: 2100000, guid: 45f3a1dda66abe04689ba84e28d19b6d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -603,9 +600,6 @@ MonoBehaviour:
   _colliderTrigger: {fileID: 2189056591370257252}
   _mirrorCam: {fileID: 336926587451027800}
   _mirrorCamObj: {fileID: 402833658812345559}
-  _effectOn: 0
-  _shader: {fileID: -6465566751694194690, guid: 4e4a7912ee9eb3e45b6088496b2667ae,
-    type: 3}
   _renderTextureSize: {x: 1141, y: 940}
 --- !u!1 &8292611790484431090
 GameObject:
@@ -671,7 +665,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b052cde0a860ea44851e4c5488e5aeb, type: 2}
+  - {fileID: 2100000, guid: 45f3a1dda66abe04689ba84e28d19b6d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

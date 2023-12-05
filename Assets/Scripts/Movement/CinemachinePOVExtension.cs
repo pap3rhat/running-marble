@@ -6,7 +6,7 @@ public class CinemachinePOVExtension : CinemachineExtension
     private InputManager _inputManager;
     private Vector3 _startingRotation;
 
-    [SerializeField] private float _horizontalClampAngle = 180f;
+    [SerializeField] private float _horizontalClampAngle = 360f;
     [SerializeField] private float _verticalClampAngle = 45f;
     [SerializeField] private float _horizontalSpeed = 10f;
     [SerializeField] private float _verticalSpeed = 10f;

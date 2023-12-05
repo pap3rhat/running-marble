@@ -1,7 +1,6 @@
 //------------------------------------------------------------------------------------------------------
 // Color conversions. Taken from: 
 //------------------------------------------------------------------------------------------------------
-
 /* 
 * Converts RGB to gray value.
 *  formula is the same as OpenCV uses: https://docs.opencv.org/2.4/modules/imgproc/doc/miscellaneous_transformations.html#void%20cvtColor%28InputArray%20src,%20OutputArray%20dst,%20int%20code,%20int%20dstCn%29
