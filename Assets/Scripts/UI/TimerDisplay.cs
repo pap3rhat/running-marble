@@ -26,6 +26,6 @@ public class TimerDisplay : MonoBehaviour
      */
     private void OnTimeLeft(float time)
     {
-        _countdownText.text = $"Time: {time}";
+        _countdownText.text = $"{time:00.00}";
     }
 }
