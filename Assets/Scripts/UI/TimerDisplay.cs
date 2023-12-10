@@ -5,20 +5,18 @@ public class TimerDisplay : MonoBehaviour
 {
     private GameManager _gameManager;
 
-    // Count down
+    // Time Count down
+    [SerializeField] private GameObject _countdownObject;
     [SerializeField] private TextMeshProUGUI _countdownText;
-    // Time out
-    [SerializeField] private GameObject _timeOutObj;
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
     private void Awake()
     {
         _gameManager = GameManager.Instance;
-    }
-
-    void Start()
-    {
         _gameManager.TimeLeft.AddListener(OnTimeLeft);
+        _gameManager.TimerDisplayed.AddListener(display => _countdownObject.SetActive(display));
+
+        _countdownObject.SetActive(false);
     }
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/

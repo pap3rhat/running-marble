@@ -20,13 +20,14 @@ public class GameManager : MonoBehaviour
     private float _startTime;
     private float _timerLength = 60f;
     [HideInInspector] public UnityEvent<float> TimeLeft = new();
+    [HideInInspector] public UnityEvent<bool> TimerDisplayed = new();
 
     // Lifes
     private int _startingLifes = 3;
     private int _remainingLifes;
 
     // Respawn
-    private bool _playerAlive = true;
+    private bool _playerAlive = false;
     [HideInInspector] public UnityEvent<int, int> PlayerDied = new();
     [HideInInspector] public UnityEvent RespawnCountdown = new();
     [HideInInspector] public float RespawnMessageTime; // used to control how long respawning message is shown; gets set be RespawingDisplay UI class, because that one control coroutine
@@ -74,8 +75,6 @@ public class GameManager : MonoBehaviour
     {
         // Player
         SpawnPlayer(false);
-        // Countdown
-        _startTime = (float)Math.Round(Time.time, 2);
         // Lifes
         _remainingLifes = _startingLifes;
         // Goal
@@ -96,6 +95,16 @@ public class GameManager : MonoBehaviour
     }
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+    /* Used to tell GameManger that game truely started (spawning animation is done) and they can start everything */
+    public void GameStarted()
+    {
+        _playerAlive = true;
+
+        // Countdown
+        TimerDisplayed.Invoke(true);
+        _startTime = (float)Math.Round(Time.time, 2);
+    }
 
     /*
      * Updates time counter.
@@ -139,6 +148,9 @@ public class GameManager : MonoBehaviour
         // Use next life if possible
         if (_remainingLifes > 0)
         {
+            // Removing timer while respawning animation is playing
+            TimerDisplayed.Invoke(false);
+
             // Respawning player
             SpawnPlayer(true);
 
@@ -158,7 +170,8 @@ public class GameManager : MonoBehaviour
             // Setting player to be alive again
             _playerAlive = true;
 
-            // Setting time back
+            // Setting time back and displaying it again
+            TimerDisplayed.Invoke(true);
             _startTime = (float)Math.Round(Time.time, 2);
         }
 

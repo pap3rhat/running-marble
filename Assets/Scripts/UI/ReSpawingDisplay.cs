@@ -22,11 +22,6 @@ public class ReSpawingDisplay : MonoBehaviour
         _gameManager.RespawnMessageTime = 5f; // setting how long respawning text takes to be displayed
     }
 
-    void Start()
-    {
-       
-    }
-
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
     /* SPAWNING */
@@ -49,6 +44,8 @@ public class ReSpawingDisplay : MonoBehaviour
         _countdownText.SetText("GO!");
         yield return new WaitForSeconds(1);
         _countdownObj.SetActive(false);
+
+        _gameManager.GameStarted(); // tell _gameManger spawning animation is done
     }
 
     /* RESPAWNING */
