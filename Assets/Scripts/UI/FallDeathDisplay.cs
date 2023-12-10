@@ -1,15 +1,18 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class FallDeathDisplay : MonoBehaviour
 {
-    [SerializeField] private GameManager _gameManager;
+    private GameManager _gameManager;
 
     // Fall Death
     [SerializeField] private GameObject _fallDeathObj;
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+    private void Awake()
+    {
+        _gameManager = GameManager.Instance;
+    }
 
     void Start()
     {

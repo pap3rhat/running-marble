@@ -1,18 +1,21 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class LifeDisplay : MonoBehaviour
 {
-    [SerializeField] private GameManager _gameManager;
+    private GameManager _gameManager;
 
     [SerializeField] private List<GameObject> _lifesIcons;
     [SerializeField] private Sprite _deadLifeIcon;
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-    // Start is called before the first frame update
+    private void Awake()
+    {
+        _gameManager = GameManager.Instance;
+    }
+
     void Start()
     {
         _gameManager.PlayerDied.AddListener(OnPlayerDied);

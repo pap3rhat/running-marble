@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class InputManager : MonoBehaviour
@@ -11,7 +9,7 @@ public class InputManager : MonoBehaviour
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
     private void Awake()
-    {
+    { 
         if (_instance != null && _instance != this)
         {
             Destroy(this.gameObject);
@@ -37,6 +35,19 @@ public class InputManager : MonoBehaviour
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
+    /* Manually enable/diable player movement */
+    public void TriggerDisable()
+    {
+        _playerControls.Disable();
+    }
+
+    public void TriggerEnable()
+    {
+        _playerControls.Enable();
+    }
+
+
+    /* Movement information */
     public Vector2 GetPlayerMovement()
     {
         return _playerControls.PlayerFirstPerson.Movement.ReadValue<Vector2>();

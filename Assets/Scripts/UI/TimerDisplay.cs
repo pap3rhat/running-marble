@@ -1,18 +1,20 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
 public class TimerDisplay : MonoBehaviour
 {
-    [SerializeField] private GameManager _gameManager;
+    private GameManager _gameManager;
 
-    //Count down
+    // Count down
     [SerializeField] private TextMeshProUGUI _countdownText;
     // Time out
     [SerializeField] private GameObject _timeOutObj;
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    private void Awake()
+    {
+        _gameManager = GameManager.Instance;
+    }
 
     void Start()
     {

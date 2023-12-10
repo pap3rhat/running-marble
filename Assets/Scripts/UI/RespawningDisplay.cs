@@ -1,15 +1,21 @@
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
 public class RespawningDisplay : MonoBehaviour
 {
-    [SerializeField] private GameManager _gameManager;
+    private GameManager _gameManager;
 
     // Respawn message
     [SerializeField] private TextMeshProUGUI _respawnText;
     [SerializeField] private GameObject _respawnObj;
+
+    /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+    private void Awake()
+    {
+        _gameManager = GameManager.Instance;
+    }
 
     void Start()
     {

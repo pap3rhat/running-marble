@@ -1,11 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
 public class EndStateDisplay : MonoBehaviour
 {
-    [SerializeField] private GameManager _gameManager;
+    private GameManager _gameManager;
 
     // End state
     [SerializeField] private GameObject _endStateObj;
@@ -14,6 +12,11 @@ public class EndStateDisplay : MonoBehaviour
     private string _loseText = "Loser!";
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+    private void Awake()
+    {
+        _gameManager = GameManager.Instance;
+    }
 
     void Start()
     {

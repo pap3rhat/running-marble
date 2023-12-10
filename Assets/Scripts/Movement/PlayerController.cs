@@ -14,7 +14,6 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
         _playerRigidBody = GetComponent<Rigidbody>();
-        //_controller = GetComponent<CharacterController>();
         _inputManager = InputManager.Instance;
         _cameraTransform = Camera.main.transform;
     }

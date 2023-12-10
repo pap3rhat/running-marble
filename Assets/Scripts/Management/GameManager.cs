@@ -15,7 +15,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float _playerYValueCondition;
 
     private GameObject _currentPlayerObject;
-    private PlayerMovement _currentPlayerMovementScript;
 
     // Countdown
     private float _startTime;
@@ -44,7 +43,24 @@ public class GameManager : MonoBehaviour
     private Vector3 _goalPosition;
     private bool _playerWon = false;
 
+
+    // Instance
+    private static GameManager _instance;
+    public static GameManager Instance { get => _instance;}
+
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+    private void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(this.gameObject);
+        }
+        else
+        {
+            _instance = this;
+        }
+    }
 
     void Start()
     {
@@ -117,7 +133,6 @@ public class GameManager : MonoBehaviour
         {
             // Respawning player
             SpawnPlayer();
-           // _currentPlayerMovementScript.enabled = false;
             RespawnCountdown.Invoke();
 
             yield return new WaitForSeconds(1);
@@ -125,7 +140,6 @@ public class GameManager : MonoBehaviour
             TimeOut.Invoke(false);
             yield return new WaitForSeconds(4);
 
-           // _currentPlayerMovementScript.enabled = true;
             _playerAlive = true;
 
             // Setting time back
@@ -148,7 +162,6 @@ public class GameManager : MonoBehaviour
     {
         if (Vector3.Distance(_currentPlayerObject.transform.position, _goalPosition) < 0.5)
         {
-            //_currentPlayerMovementScript.enabled = false;
             _playerWon = true;
             EndState.Invoke(true);
         }
@@ -167,8 +180,6 @@ public class GameManager : MonoBehaviour
         _stateCamera.LookAt = _currentPlayerObject.transform;
         _currentPlayerObject.GetComponent<CameraTrigger>().StateCamera = _stateCamera;
         _currentPlayerObject.GetComponent<CameraTrigger>().Animator = _animator;
-
-       // _currentPlayerMovementScript = _currentPlayerObject.GetComponent<PlayerMovement>();
     }
 
     /*
@@ -177,6 +188,5 @@ public class GameManager : MonoBehaviour
     private void DestroyPlayer()
     {
         Destroy(_currentPlayerObject);
-        //Destroy(_currentPlayerMovementScript);
     }
 }
