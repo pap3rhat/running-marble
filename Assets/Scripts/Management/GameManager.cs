@@ -16,12 +16,10 @@ public class GameManager : MonoBehaviour
 
     private GameObject _currentPlayerObject;
 
-    // Countdown
+    // Time Countdown
     private float _startTime;
-    private float _timerLength = 500f;
-
-    public UnityEvent<float> TimeLeft = new();
-    public UnityEvent<bool> TimeOut = new();
+    private float _timerLength = 60f;
+    [HideInInspector] public UnityEvent<float> TimeLeft = new();
 
     // Lifes
     private int _startingLifes = 3;
@@ -29,16 +27,24 @@ public class GameManager : MonoBehaviour
 
     // Respawn
     private bool _playerAlive = true;
-    public UnityEvent<int, int> PlayerDied = new();
-    public UnityEvent RespawnCountdown = new();
+    [HideInInspector] public UnityEvent<int, int> PlayerDied = new();
+    [HideInInspector] public UnityEvent RespawnCountdown = new();
+    [HideInInspector] public float RespawnMessageTime; // used to control how long respawning message is shown; gets set be RespawingDisplay UI class, because that one control coroutine
+    [HideInInspector] public float DiedMessageTime; // used to control how long died message is shown
+
+    // Start 
+    [HideInInspector] public UnityEvent StartCountdown = new();
+
+    // Time out death
+    [HideInInspector] public UnityEvent<bool> TimeOut = new();
 
     // Fall death
-    public UnityEvent<bool> FallDeath = new();
+    [HideInInspector] public UnityEvent<bool> FallDeath = new();
 
     // End state
-    public UnityEvent<bool> EndState = new();
+    [HideInInspector] public UnityEvent<bool> EndState = new();
 
-    // Goal destination
+    // Goal destination -- TODO, switch to goal box trigger
     [SerializeField] private GameObject _goal;
     private Vector3 _goalPosition;
     private bool _playerWon = false;
@@ -46,7 +52,7 @@ public class GameManager : MonoBehaviour
 
     // Instance
     private static GameManager _instance;
-    public static GameManager Instance { get => _instance;}
+    public static GameManager Instance { get => _instance; }
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
@@ -60,12 +66,14 @@ public class GameManager : MonoBehaviour
         {
             _instance = this;
         }
+
+        DiedMessageTime = 1f; // setting here, so it does not have to be set in inspector
     }
 
     void Start()
     {
         // Player
-        SpawnPlayer();
+        SpawnPlayer(false);
         // Countdown
         _startTime = (float)Math.Round(Time.time, 2);
         // Lifes
@@ -83,7 +91,7 @@ public class GameManager : MonoBehaviour
 
         CheckWin();
         CheckDeath();
-       // CheckCameraSwitch();
+        // CheckCameraSwitch();
         CountdownUpdate();
     }
 
@@ -106,21 +114,21 @@ public class GameManager : MonoBehaviour
         if (Time.time - _startTime >= _timerLength)
         {
             TimeOut.Invoke(true);
-            StartCoroutine(Restart());
+            StartCoroutine(Respawn(true));
         }
         // Player fell down
         else if (_currentPlayerObject.transform.position.y < _playerYValueCondition)
         {
             FallDeath.Invoke(true);
-            StartCoroutine(Restart());
+            StartCoroutine(Respawn(false));
         }
     }
 
     /*
      * Restarts the game if enough lifes are left.
-     * TODO: REMOVE THIS UGLY SPHAGET
+     * TODO: REMOVE THIS UGLY SPHAGET (or don't, because there is no non-ugly way, mabye, probably, who even knows)
      */
-    private IEnumerator Restart()
+    private IEnumerator Respawn(bool timeDeath)
     {
         // Setting player to dead
         _playerAlive = false;
@@ -132,14 +140,22 @@ public class GameManager : MonoBehaviour
         if (_remainingLifes > 0)
         {
             // Respawning player
-            SpawnPlayer();
-            RespawnCountdown.Invoke();
+            SpawnPlayer(true);
 
-            yield return new WaitForSeconds(1);
-            FallDeath.Invoke(false);
-            TimeOut.Invoke(false);
-            yield return new WaitForSeconds(4);
+            yield return new WaitForSeconds(DiedMessageTime);
 
+            if (timeDeath) // player died because time ran out
+            {
+                TimeOut.Invoke(false);
+            }
+            else // player died because of other things
+            {
+                FallDeath.Invoke(false);
+            }
+
+            yield return new WaitForSeconds(RespawnMessageTime);
+
+            // Setting player to be alive again
             _playerAlive = true;
 
             // Setting time back
@@ -149,6 +165,7 @@ public class GameManager : MonoBehaviour
         // End game if dead
         if (_remainingLifes == 0)
         {
+            // just clear everything
             FallDeath.Invoke(false);
             TimeOut.Invoke(false);
             EndState.Invoke(false);
@@ -156,7 +173,7 @@ public class GameManager : MonoBehaviour
     }
 
     /*
-     * Checks if player won by meassuring player distance to goal.
+     * Checks if player won by meassuring player distance to goal. TODO: exhcange with win trigger box
      */
     private void CheckWin()
     {
@@ -171,15 +188,25 @@ public class GameManager : MonoBehaviour
     /* 
      * Handles spawning of player.
      */
-    private void SpawnPlayer()
+    private void SpawnPlayer(bool respawn)
     {
+        // Player object
         _currentPlayerObject = Instantiate(_playerPrefab, _playerSpawnPosition, _playerPrefab.transform.rotation);
-        
+
         // Camera set up
         _stateCamera.Follow = _currentPlayerObject.transform;
         _stateCamera.LookAt = _currentPlayerObject.transform;
         _currentPlayerObject.GetComponent<CameraTrigger>().StateCamera = _stateCamera;
         _currentPlayerObject.GetComponent<CameraTrigger>().Animator = _animator;
+
+        if (respawn) // Countdown to respawn
+        {
+            RespawnCountdown.Invoke();
+        }
+        else // Countdown to start
+        {
+            StartCountdown.Invoke();
+        }
     }
 
     /*

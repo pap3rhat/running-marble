@@ -18,8 +18,6 @@ public class TimerDisplay : MonoBehaviour
 
     void Start()
     {
-        _timeOutObj.SetActive(false);
-        _gameManager.TimeOut.AddListener(on => _timeOutObj.SetActive(on));
         _gameManager.TimeLeft.AddListener(OnTimeLeft);
     }
 
