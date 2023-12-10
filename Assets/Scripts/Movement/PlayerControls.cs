@@ -72,7 +72,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""id"": ""d5f17cc0-2be3-47b1-9934-1bcf27956dfd"",
                     ""path"": ""<Mouse>/delta"",
                     ""interactions"": """",
-                    ""processors"": """",
+                    ""processors"": ""InvertVector2(invertY=false)"",
                     ""groups"": """",
                     ""action"": ""Look"",
                     ""isComposite"": false,
@@ -114,7 +114,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                 {
                     ""name"": ""left"",
                     ""id"": ""0f7ee306-e240-40d1-8d93-9f32aa2ca5ee"",
-                    ""path"": ""<Keyboard>/w"",
+                    ""path"": ""<Keyboard>/a"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",

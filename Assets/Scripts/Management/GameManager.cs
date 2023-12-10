@@ -18,7 +18,7 @@ public class GameManager : MonoBehaviour
 
     // Time Countdown
     private float _startTime;
-    private float _timerLength = 60f;
+    private float _timerLength = 6000f;
     [HideInInspector] public UnityEvent<float> TimeLeft = new();
     [HideInInspector] public UnityEvent<bool> TimerDisplayed = new();
 

@@ -2919,13 +2919,21 @@ MonoBehaviour:
   TimeLeft:
     m_PersistentCalls:
       m_Calls: []
-  TimeOut:
+  TimerDisplayed:
     m_PersistentCalls:
       m_Calls: []
   PlayerDied:
     m_PersistentCalls:
       m_Calls: []
   RespawnCountdown:
+    m_PersistentCalls:
+      m_Calls: []
+  RespawnMessageTime: 0
+  DiedMessageTime: 0
+  StartCountdown:
+    m_PersistentCalls:
+      m_Calls: []
+  TimeOut:
     m_PersistentCalls:
       m_Calls: []
   FallDeath:

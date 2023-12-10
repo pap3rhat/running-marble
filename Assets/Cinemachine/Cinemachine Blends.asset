@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Cinemachine Blends
   m_EditorClassIdentifier: 
   m_CustomBlends:
-  - m_From: VC First Person
+  - m_From: VC Third Person
     m_To: VC Top Down
     m_Blend:
-      m_Style: 1
+      m_Style: 0
       m_Time: 2
       m_CustomCurve:
         serializedVersion: 2
@@ -25,7 +25,7 @@ MonoBehaviour:
         m_PostInfinity: 0
         m_RotationOrder: 0
   - m_From: VC Top Down
-    m_To: VC First Person
+    m_To: VC Third Person
     m_Blend:
       m_Style: 1
       m_Time: 2
@@ -35,7 +35,7 @@ MonoBehaviour:
         m_PreInfinity: 0
         m_PostInfinity: 0
         m_RotationOrder: 0
-  - m_From: VC First Person
+  - m_From: VC Third Person
     m_To: VC Side
     m_Blend:
       m_Style: 1
@@ -47,7 +47,7 @@ MonoBehaviour:
         m_PostInfinity: 0
         m_RotationOrder: 0
   - m_From: VC Side
-    m_To: VC First Person
+    m_To: VC Third Person
     m_Blend:
       m_Style: 1
       m_Time: 2

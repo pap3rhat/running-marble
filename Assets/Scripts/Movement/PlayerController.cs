@@ -24,6 +24,7 @@ public class PlayerController : MonoBehaviour
         Vector3 move = new Vector3(movement.x, 0, movement.y);
         move = _cameraTransform.forward * move.z + _cameraTransform.right * move.x;
         move.y = 0f;
+        Debug.DrawLine(_playerRigidBody.transform.position, _playerRigidBody.transform.position + move);
         _playerRigidBody.AddForce(move * _playerSpeed * Time.deltaTime, ForceMode.Impulse);
 
         // Changes the height position of the player..
