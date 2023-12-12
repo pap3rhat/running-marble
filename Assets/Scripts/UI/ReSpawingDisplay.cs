@@ -34,15 +34,15 @@ public class ReSpawingDisplay : MonoBehaviour
     {
         _countdownObj.SetActive(true);
         _countdownText.SetText("Starting in...");
-        yield return new WaitForSeconds(1);
+        yield return StartCoroutine(FadeOut(_countdownText));
         _countdownText.SetText("3...");
-        yield return new WaitForSeconds(1);
+        yield return StartCoroutine(FadeOut(_countdownText));
         _countdownText.SetText("2...");
-        yield return new WaitForSeconds(1);
+        yield return StartCoroutine(FadeOut(_countdownText));
         _countdownText.SetText("1...");
-        yield return new WaitForSeconds(1);
+        yield return StartCoroutine(FadeOut(_countdownText));
         _countdownText.SetText("GO!");
-        yield return new WaitForSeconds(1);
+        yield return StartCoroutine(FadeOut(_countdownText));
         _countdownObj.SetActive(false);
 
         _gameManager.GameStarted(); // tell _gameManger spawning animation is done
@@ -61,16 +61,32 @@ public class ReSpawingDisplay : MonoBehaviour
         // starting respan messages 
         _countdownObj.SetActive(true);
         _countdownText.SetText("Respawning...");
-        yield return new WaitForSeconds(1);
+        yield return StartCoroutine(FadeOut(_countdownText));
         _countdownText.SetText("3...");
-        yield return new WaitForSeconds(1);
+        yield return StartCoroutine(FadeOut(_countdownText));
         _countdownText.SetText("2...");
-        yield return new WaitForSeconds(1);
+        yield return StartCoroutine(FadeOut(_countdownText));
         _countdownText.SetText("1...");
-        yield return new WaitForSeconds(1);
+        yield return StartCoroutine(FadeOut(_countdownText));
         _countdownText.SetText("GO!");
-        yield return new WaitForSeconds(1);
+        yield return StartCoroutine(FadeOut(_countdownText));
         _countdownObj.SetActive(false);
     }
 
+
+    /* GENERAL */
+    
+    /*
+     * Fades out text.
+     */
+    private IEnumerator FadeOut(TMP_Text text)
+    {
+        float t = 0;
+        while (t <= 1)
+        {
+            t += Time.deltaTime;
+            text.alpha = 1 - t;
+            yield return null;
+        }
+    }
 }
