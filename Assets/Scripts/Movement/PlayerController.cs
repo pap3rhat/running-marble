@@ -5,6 +5,7 @@ public class PlayerController : MonoBehaviour
     private bool _isGrounded;
     [SerializeField] private float _playerSpeed = 10.0f;
     [SerializeField] private float _jumpHeight = 1.0f;
+    [SerializeField] private float _bouncerStrength = 1.0f;
 
     private Rigidbody _playerRigidBody;
     private InputManager _inputManager;
@@ -40,9 +41,14 @@ public class PlayerController : MonoBehaviour
         _isGrounded = true;
     }
 
-    void OnCollisionEnter()
+    void OnCollisionEnter(Collision collison)
     {
         _isGrounded = true;
+        
+        if (collison.gameObject.name.Contains("Bouncer"))
+        {
+            _playerRigidBody.AddForce(collison.relativeVelocity * _bouncerStrength, ForceMode.Impulse) ;    
+        }
     }
 
     void OnCollisionExit()
