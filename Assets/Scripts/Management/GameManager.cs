@@ -5,6 +5,9 @@ using UnityEngine;
 using UnityEngine.Events;
 public class GameManager : MonoBehaviour
 {
+    // Input Manager
+    private InputManager _inputManager;
+
     // Camera
     [SerializeField] private CinemachineStateDrivenCamera _stateCamera;
     [SerializeField] private Animator _animator;
@@ -46,9 +49,9 @@ public class GameManager : MonoBehaviour
     [HideInInspector] public UnityEvent<bool> EndState = new();
 
     // Goal destination -- TODO, switch to goal box trigger
-    [SerializeField] private GameObject _goal;
-    private Vector3 _goalPosition;
-    private bool _playerWon = false;
+    //[SerializeField] private GameObject _goal;
+    //private Vector3 _goalPosition;
+    //private bool _playerWon = false;
 
 
     // Instance
@@ -69,6 +72,8 @@ public class GameManager : MonoBehaviour
         }
 
         DiedMessageTime = 1f; // setting here, so it does not have to be set in inspector
+
+        _inputManager = InputManager.Instance;
     }
 
     void Start()
@@ -78,17 +83,17 @@ public class GameManager : MonoBehaviour
         // Lifes
         _remainingLifes = _startingLifes;
         // Goal
-        _goalPosition = _goal.transform.position;
+        //_goalPosition = _goal.transform.position;
     }
 
     void Update()
     {
-        if (!_playerAlive || _playerWon)
+        if (!_playerAlive /*|| _playerWon*/)
         {
             return;
         }
 
-        CheckWin();
+        //CheckWin();
         CheckDeath();
         // CheckCameraSwitch();
         CountdownUpdate();
@@ -145,6 +150,9 @@ public class GameManager : MonoBehaviour
         _remainingLifes--;
         DestroyPlayer();
 
+        // Player cannot move anymore
+        _inputManager.TriggerDisable();
+
         // Use next life if possible
         if (_remainingLifes > 0)
         {
@@ -173,6 +181,9 @@ public class GameManager : MonoBehaviour
             // Setting time back and displaying it again
             TimerDisplayed.Invoke(true);
             _startTime = (float)Math.Round(Time.time, 2);
+
+            // player can move again
+            _inputManager.TriggerEnable();
         }
 
         // End game if dead
@@ -188,14 +199,14 @@ public class GameManager : MonoBehaviour
     /*
      * Checks if player won by meassuring player distance to goal. TODO: exhcange with win trigger box
      */
-    private void CheckWin()
-    {
-        if (Vector3.Distance(_currentPlayerObject.transform.position, _goalPosition) < 0.5)
-        {
-            _playerWon = true;
-            EndState.Invoke(true);
-        }
-    }
+    //private void CheckWin()
+    //{
+    //    if (Vector3.Distance(_currentPlayerObject.transform.position, _goalPosition) < 0.5)
+    //    {
+    //        _playerWon = true;
+    //        EndState.Invoke(true);
+    //    }
+    //}
 
 
     /* 
