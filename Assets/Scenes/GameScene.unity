@@ -2447,7 +2447,7 @@ PrefabInstance:
     - target: {fileID: 7465701983535567220, guid: 860b8f385745f3d48b05c2ec23942b23,
         type: 3}
       propertyPath: m_Name
-      value: Goal Banner
+      value: Module Banner
       objectReference: {fileID: 0}
     - target: {fileID: 7840855782938725326, guid: 860b8f385745f3d48b05c2ec23942b23,
         type: 3}
@@ -2502,8 +2502,40 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7465701983535567220, guid: 860b8f385745f3d48b05c2ec23942b23,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5860488987882390008}
   m_SourcePrefab: {fileID: 100100000, guid: 860b8f385745f3d48b05c2ec23942b23, type: 3}
+--- !u!1 &5860488987882390007 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7465701983535567220, guid: 860b8f385745f3d48b05c2ec23942b23,
+    type: 3}
+  m_PrefabInstance: {fileID: 5860488987882390006}
+  m_PrefabAsset: {fileID: 0}
+--- !u!64 &5860488987882390008
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5860488987882390007}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -6848801927441659928, guid: c49df83ba5c59bf4c996c76958af66cc, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

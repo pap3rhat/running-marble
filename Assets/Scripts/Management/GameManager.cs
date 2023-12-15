@@ -38,13 +38,10 @@ public class GameManager : MonoBehaviour
 
     // Start 
     [HideInInspector] public UnityEvent StartCountdown = new();
-
     // Time out death
     [HideInInspector] public UnityEvent<bool> TimeOut = new();
-
     // Fall death
     [HideInInspector] public UnityEvent<bool> FallDeath = new();
-
     // End state
     [HideInInspector] public UnityEvent<bool> EndState = new();
 
@@ -52,6 +49,10 @@ public class GameManager : MonoBehaviour
     //[SerializeField] private GameObject _goal;
     //private Vector3 _goalPosition;
     //private bool _playerWon = false;
+
+    // Test osbatcel switch
+    [SerializeField] private GameObject _moduleActive;
+
 
 
     // Instance
@@ -112,6 +113,22 @@ public class GameManager : MonoBehaviour
         TimerDisplayed.Invoke(true);
         _startTime = (float)Math.Round(Time.time, 2);
     }
+
+
+    /* 
+     * Used to tell GameManger that Checkpoint got reached.
+     * Teleports player back to beginning.
+     */
+    public void CheckpointReached()
+    {
+        // Setting player back, but keeping x and y coordinate, so it is not as obvious
+        Vector3 playerPosition = _currentPlayerObject.transform.position;
+        _currentPlayerObject.transform.position = new Vector3(playerPosition.x, playerPosition.y, _playerSpawnPosition.z);
+
+
+    }
+
+    /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
     /*
      * Updates time counter.
