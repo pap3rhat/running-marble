@@ -73,6 +73,8 @@ public class GameManager : MonoBehaviour
 
         DiedMessageTime = 1f; // setting here, so it does not have to be set in inspector
 
+        RenderSettings.fog = true;
+
         _inputManager = InputManager.Instance;
     }
 
