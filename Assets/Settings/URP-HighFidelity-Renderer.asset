@@ -53,7 +53,8 @@ MonoBehaviour:
     hdrDebugViewPS: {fileID: 4800000, guid: 573620ae32aec764abd4d728906d2587, type: 3}
   m_RendererFeatures:
   - {fileID: -1878332245247344467}
-  m_RendererFeatureMap: adc0de57c6d2eee5
+  - {fileID: 8306746186242442149}
+  m_RendererFeatureMap: adc0de57c6d2eee5a5c34f36a57d4773
   m_UseNativeRenderPass: 0
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   xrSystemData: {fileID: 11400000, guid: 60e1133243b97e347b653163a8c01b64, type: 2}
@@ -91,8 +92,30 @@ MonoBehaviour:
     failOperation: 0
     zFailOperation: 0
   m_ShadowTransparentReceive: 1
-  m_RenderingMode: 0
+  m_RenderingMode: 2
   m_DepthPrimingMode: 0
   m_CopyDepthMode: 0
   m_AccurateGbufferNormals: 0
   m_IntermediateTextureMode: 1
+--- !u!114 &8306746186242442149
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f648f2dc231fc8d46952eb836beda934, type: 3}
+  m_Name: Outline
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  settings:
+    OutlineColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+    OutlineThickness: 0.5
+    samplingNoiseStrength: 0.00339
+    samplingNoiseSmoothness: 415
+    colorThreshold: 0.47
+    depthThreshold: 0.05
+  m_vertexColorEdges: {fileID: -6465566751694194690, guid: 5425a6bb88d492d48a965f0908531ff3,
+    type: 3}
