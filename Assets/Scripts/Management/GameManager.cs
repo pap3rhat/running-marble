@@ -15,7 +15,6 @@ public class GameManager : MonoBehaviour
     // Player information
     [SerializeField] private GameObject _playerPrefab;
     [SerializeField] private Vector3 _playerSpawnPosition;
-    [SerializeField] private float _playerYValueCondition;
 
     private GameObject _currentPlayerObject;
 
@@ -40,8 +39,9 @@ public class GameManager : MonoBehaviour
     [HideInInspector] public UnityEvent StartCountdown = new();
     // Time out death
     [HideInInspector] public UnityEvent<bool> TimeOut = new();
-    // Fall death
-    [HideInInspector] public UnityEvent<bool> FallDeath = new();
+    // Other kind of death
+    [HideInInspector] public UnityEvent<bool> MiscDeath = new();
+    public bool MiscDeathHappened = false;
     // End state
     [HideInInspector] public UnityEvent<bool> EndState = new();
 
@@ -50,7 +50,11 @@ public class GameManager : MonoBehaviour
     //private Vector3 _goalPosition;
     //private bool _playerWon = false;
 
-    // Test osbatcel switch
+    // Test obstacle switch
+    // TODO: List of all differnet prefabs -> spawn random one
+    // Number of how many after another, then goal one -> own prefab
+    // Get active one from hierarchy at beginning (search for module active or start or something)
+    [SerializeField] private GameObject _modulePrefab;
     [SerializeField] private GameObject _moduleActive;
 
 
@@ -109,6 +113,9 @@ public class GameManager : MonoBehaviour
     {
         _playerAlive = true;
 
+        // player can move
+        _inputManager.TriggerEnable();
+
         // Countdown
         TimerDisplayed.Invoke(true);
         _startTime = (float)Math.Round(Time.time, 2);
@@ -125,7 +132,11 @@ public class GameManager : MonoBehaviour
         Vector3 playerPosition = _currentPlayerObject.transform.position;
         _currentPlayerObject.transform.position = new Vector3(playerPosition.x, playerPosition.y, _playerSpawnPosition.z);
 
-
+        // Setting new element of track
+        Vector3 spawnPos = _moduleActive.transform.position;
+        Quaternion spawnRot = _moduleActive.transform.rotation;
+        Destroy(_moduleActive);
+        _moduleActive = Instantiate(_modulePrefab, spawnPos, spawnRot);
     }
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -149,11 +160,12 @@ public class GameManager : MonoBehaviour
             TimeOut.Invoke(true);
             StartCoroutine(Respawn(true));
         }
-        // Player fell down
-        else if (_currentPlayerObject.transform.position.y < _playerYValueCondition)
+        // Player died in another way
+        else if (MiscDeathHappened)
         {
-            FallDeath.Invoke(true);
+            MiscDeath.Invoke(true);
             StartCoroutine(Respawn(false));
+            MiscDeathHappened = false;
         }
     }
 
@@ -189,7 +201,7 @@ public class GameManager : MonoBehaviour
             }
             else // player died because of other things
             {
-                FallDeath.Invoke(false);
+                MiscDeath.Invoke(false);
             }
 
             yield return new WaitForSeconds(RespawnMessageTime);
@@ -209,7 +221,7 @@ public class GameManager : MonoBehaviour
         if (_remainingLifes == 0)
         {
             // just clear everything
-            FallDeath.Invoke(false);
+            MiscDeath.Invoke(false);
             TimeOut.Invoke(false);
             EndState.Invoke(false);
         }
@@ -235,6 +247,9 @@ public class GameManager : MonoBehaviour
     {
         // Player object
         _currentPlayerObject = Instantiate(_playerPrefab, _playerSpawnPosition, _playerPrefab.transform.rotation);
+        
+        // Player cannot move at beginning
+        _inputManager.TriggerDisable();
 
         // Camera set up
         _stateCamera.Follow = _currentPlayerObject.transform;

@@ -21,7 +21,7 @@ public class CentralMessageDisplay : MonoBehaviour
     {
         _gameManager = GameManager.Instance;
 
-        _gameManager.FallDeath.AddListener(OnFallDeath);
+        _gameManager.MiscDeath.AddListener(OnMiscDeath);
         _gameManager.TimeOut.AddListener(OnTimeOut);
         _gameManager.EndState.AddListener(OnEndState);
 
@@ -41,7 +41,7 @@ public class CentralMessageDisplay : MonoBehaviour
         _centralMessageObject.SetActive(display);
     }
 
-    private void OnFallDeath(bool display)
+    private void OnMiscDeath(bool display)
     {
         if (display)
         {
