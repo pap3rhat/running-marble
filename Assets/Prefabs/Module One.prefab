@@ -95,7 +95,7 @@ GameObject:
   - component: {fileID: 2535394044533826555}
   - component: {fileID: 5867346810816821137}
   - component: {fileID: 6884575449526847316}
-  - component: {fileID: 5309039930183716582}
+  - component: {fileID: 5129703048132461068}
   m_Layer: 0
   m_Name: Obstacle Section
   m_TagString: Untagged
@@ -168,7 +168,7 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1711672298701508842}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &5309039930183716582
+--- !u!114 &5129703048132461068
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -180,7 +180,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 890981539e7a17548b83d825ecdbc068, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _prefab: {fileID: 0}
+  _prefab: {fileID: 7873432064453455477, guid: ebc8eae6ff4802c4384d7a3b75486139, type: 3}
+  _sampleTexture: {fileID: 2800000, guid: 6f7b32e52aad684498d5ccbbf4dd7678, type: 3}
 --- !u!1 &2989852600652500343
 GameObject:
   m_ObjectHideFlags: 0

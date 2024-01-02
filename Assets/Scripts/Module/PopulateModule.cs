@@ -26,9 +26,10 @@ public class PopulateModule : MonoBehaviour
             {
                 if (_sampleTexture.GetPixel(x, y).r == 0)
                 {
-                    // TODO: Map positionbetween -0.5 and 0.5
-                    // Figure out how to set y correctly
-                    Instantiate(_prefab, new Vector3(x, 7f, y), _prefab.transform.rotation, this.transform);
+                    // TODO: Figure out how to set y correctly
+                    var go = Instantiate(_prefab);
+                    go.transform.SetParent(this.transform, true);
+                    go.transform.localPosition = new Vector3(((float)x).Remap(0, 9, -0.5f, 0.5f), 0.6f, ((float)y).Remap(0, 9, -0.5f, 0.5f));
                 }
             }
         }
