@@ -78,7 +78,8 @@ public class GameManager : MonoBehaviour
 
         DiedMessageTime = 1f; // setting here, so it does not have to be set in inspector
 
-        RenderSettings.fog = true;
+        // TODO 
+        //RenderSettings.fog = true;
 
         _inputManager = InputManager.Instance;
     }
@@ -247,7 +248,7 @@ public class GameManager : MonoBehaviour
     {
         // Player object
         _currentPlayerObject = Instantiate(_playerPrefab, _playerSpawnPosition, _playerPrefab.transform.rotation);
-        
+
         // Player cannot move at beginning
         _inputManager.TriggerDisable();
 

@@ -180,7 +180,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 890981539e7a17548b83d825ecdbc068, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _prefab: {fileID: 7873432064453455477, guid: ebc8eae6ff4802c4384d7a3b75486139, type: 3}
+  _prefabs:
+  - {fileID: 8804744568990751659, guid: 57376795a5f557049aea6759f6955f8f, type: 3}
+  - {fileID: 7873432064453455477, guid: ebc8eae6ff4802c4384d7a3b75486139, type: 3}
+  - {fileID: 4957504171580714047, guid: c43a040174c11a64e9033b61e9dcabfa, type: 3}
+  - {fileID: 4957504171580714047, guid: dd18c22a7f4173e45a0ce20ddf0837a4, type: 3}
+  - {fileID: 4840370819633027370, guid: 1c9e3c61e1a984b4099e1684ee55ca09, type: 3}
+  - {fileID: 443899940303793423, guid: b72e5fdf383851840a22a7413b0b614d, type: 3}
   _sampleTexture: {fileID: 2800000, guid: 6f7b32e52aad684498d5ccbbf4dd7678, type: 3}
 --- !u!1 &2989852600652500343
 GameObject:
