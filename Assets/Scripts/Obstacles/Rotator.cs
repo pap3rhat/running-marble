@@ -23,7 +23,7 @@ public class Rotator : MonoBehaviour
         var parent = _rotator.transform.parent;
         _rotator.transform.parent = null;
         _rotator.transform.Rotate(_roationVector * _rotationSpeed);
-        // reattaching did not work, why?
-        //_rotator.transform.SetParent(parent,true);
+        // reattaching did not work, why? -> this skews the perspective, but when module is destoryed, rotators also go with it -> need to fix once factory and stuff
+        _rotator.transform.SetParent(parent,true);
     }
 }
