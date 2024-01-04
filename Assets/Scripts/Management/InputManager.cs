@@ -50,17 +50,17 @@ public class InputManager : MonoBehaviour
     /* Movement information */
     public Vector2 GetPlayerMovement()
     {
-        return _playerControls.PlayerFirstPerson.Movement.ReadValue<Vector2>();
+        return _playerControls.PlayerThirdPerson.Movement.ReadValue<Vector2>();
     }
 
     public Vector2 GetMouseData()
     {
-        return _playerControls.PlayerFirstPerson.Look.ReadValue<Vector2>();
+        return _playerControls.PlayerThirdPerson.Look.ReadValue<Vector2>();
     }
 
-    public bool PlayerJumped()
+    public bool PlayerBoosted()
     {
-        return _playerControls.PlayerFirstPerson.Jump.triggered;
+        return _playerControls.PlayerThirdPerson.Boost.triggered;
     }
 
 }

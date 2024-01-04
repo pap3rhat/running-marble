@@ -1,15 +1,22 @@
+using System.Collections;
 using UnityEngine;
+
 
 public class PlayerController : MonoBehaviour
 {
-    private bool _isGrounded;
-    [SerializeField] private float _playerSpeed = 10.0f;
-    [SerializeField] private float _jumpHeight = 1.0f;
+    [SerializeField] private float _playerSpeed = 20.0f;
+    [SerializeField] private float _boostStrength = 250f;
     [SerializeField] private float _bouncerStrength = 1.0f;
 
     private Rigidbody _playerRigidBody;
     private InputManager _inputManager;
     private Transform _cameraTransform;
+
+    // Controls boost cooldown & vfx length
+    private bool _isBoosting = false;
+    private float _vfxLength = 2f;
+    private float _boostCooldown = 5f;
+
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
     private void Start()
@@ -28,31 +35,32 @@ public class PlayerController : MonoBehaviour
         Debug.DrawLine(_playerRigidBody.transform.position, _playerRigidBody.transform.position + move);
         _playerRigidBody.AddForce(move * _playerSpeed * Time.deltaTime, ForceMode.Impulse);
 
-        // Changes the height position of the player..
-        if (_inputManager.PlayerJumped() && _isGrounded)
+        // Check if player boosted
+        if (_inputManager.PlayerBoosted() && !_isBoosting)
         {
-            _playerRigidBody.AddForce(Vector3.up * _jumpHeight, ForceMode.Impulse);
+            _playerRigidBody.AddForce(move * _playerSpeed * _boostStrength * Time.deltaTime, ForceMode.Impulse);
+            StartCoroutine(BoostControl());
         }
-    }
-
-
-    private void OnCollisionStay(Collision collision)
-    {
-        _isGrounded = true;
     }
 
     void OnCollisionEnter(Collision collison)
     {
-        _isGrounded = true;
-        
         if (collison.gameObject.name.Contains("Bouncer"))
         {
-            _playerRigidBody.AddForce(collison.relativeVelocity * _bouncerStrength, ForceMode.Impulse) ;    
+            _playerRigidBody.AddForce(collison.relativeVelocity * _bouncerStrength, ForceMode.Impulse);
         }
     }
 
-    void OnCollisionExit()
+    /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+    private IEnumerator BoostControl()
     {
-        _isGrounded = false;
+        _isBoosting = true;
+        UniversalRenderPipelineUtils.SetRendererFeatureActive("SpeedLines", true);
+        yield return new WaitForSeconds(_vfxLength);
+        UniversalRenderPipelineUtils.SetRendererFeatureActive("SpeedLines", false);
+        yield return new WaitForSeconds(_boostCooldown - _vfxLength);
+        _isBoosting = false;
+    
     }
 }

@@ -2,7 +2,7 @@
     "name": "PlayerControls",
     "maps": [
         {
-            "name": "Player First Person",
+            "name": "Player Third Person",
             "id": "6ed90cda-1247-4d96-bc3e-60075b008c36",
             "actions": [
                 {
@@ -15,7 +15,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Jump",
+                    "name": "Boost",
                     "type": "Button",
                     "id": "d77775ba-e439-457e-9c0a-7bb6fa48efb8",
                     "expectedControlType": "Button",
@@ -41,7 +41,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Jump",
+                    "action": "Boost",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

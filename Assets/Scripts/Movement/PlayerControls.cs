@@ -24,7 +24,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     ""name"": ""PlayerControls"",
     ""maps"": [
         {
-            ""name"": ""Player First Person"",
+            ""name"": ""Player Third Person"",
             ""id"": ""6ed90cda-1247-4d96-bc3e-60075b008c36"",
             ""actions"": [
                 {
@@ -37,7 +37,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Jump"",
+                    ""name"": ""Boost"",
                     ""type"": ""Button"",
                     ""id"": ""d77775ba-e439-457e-9c0a-7bb6fa48efb8"",
                     ""expectedControlType"": ""Button"",
@@ -63,7 +63,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Jump"",
+                    ""action"": ""Boost"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -138,11 +138,11 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     ],
     ""controlSchemes"": []
 }");
-        // Player First Person
-        m_PlayerFirstPerson = asset.FindActionMap("Player First Person", throwIfNotFound: true);
-        m_PlayerFirstPerson_Movement = m_PlayerFirstPerson.FindAction("Movement", throwIfNotFound: true);
-        m_PlayerFirstPerson_Jump = m_PlayerFirstPerson.FindAction("Jump", throwIfNotFound: true);
-        m_PlayerFirstPerson_Look = m_PlayerFirstPerson.FindAction("Look", throwIfNotFound: true);
+        // Player Third Person
+        m_PlayerThirdPerson = asset.FindActionMap("Player Third Person", throwIfNotFound: true);
+        m_PlayerThirdPerson_Movement = m_PlayerThirdPerson.FindAction("Movement", throwIfNotFound: true);
+        m_PlayerThirdPerson_Boost = m_PlayerThirdPerson.FindAction("Boost", throwIfNotFound: true);
+        m_PlayerThirdPerson_Look = m_PlayerThirdPerson.FindAction("Look", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -201,71 +201,71 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         return asset.FindBinding(bindingMask, out action);
     }
 
-    // Player First Person
-    private readonly InputActionMap m_PlayerFirstPerson;
-    private List<IPlayerFirstPersonActions> m_PlayerFirstPersonActionsCallbackInterfaces = new List<IPlayerFirstPersonActions>();
-    private readonly InputAction m_PlayerFirstPerson_Movement;
-    private readonly InputAction m_PlayerFirstPerson_Jump;
-    private readonly InputAction m_PlayerFirstPerson_Look;
-    public struct PlayerFirstPersonActions
+    // Player Third Person
+    private readonly InputActionMap m_PlayerThirdPerson;
+    private List<IPlayerThirdPersonActions> m_PlayerThirdPersonActionsCallbackInterfaces = new List<IPlayerThirdPersonActions>();
+    private readonly InputAction m_PlayerThirdPerson_Movement;
+    private readonly InputAction m_PlayerThirdPerson_Boost;
+    private readonly InputAction m_PlayerThirdPerson_Look;
+    public struct PlayerThirdPersonActions
     {
         private @PlayerControls m_Wrapper;
-        public PlayerFirstPersonActions(@PlayerControls wrapper) { m_Wrapper = wrapper; }
-        public InputAction @Movement => m_Wrapper.m_PlayerFirstPerson_Movement;
-        public InputAction @Jump => m_Wrapper.m_PlayerFirstPerson_Jump;
-        public InputAction @Look => m_Wrapper.m_PlayerFirstPerson_Look;
-        public InputActionMap Get() { return m_Wrapper.m_PlayerFirstPerson; }
+        public PlayerThirdPersonActions(@PlayerControls wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Movement => m_Wrapper.m_PlayerThirdPerson_Movement;
+        public InputAction @Boost => m_Wrapper.m_PlayerThirdPerson_Boost;
+        public InputAction @Look => m_Wrapper.m_PlayerThirdPerson_Look;
+        public InputActionMap Get() { return m_Wrapper.m_PlayerThirdPerson; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
         public bool enabled => Get().enabled;
-        public static implicit operator InputActionMap(PlayerFirstPersonActions set) { return set.Get(); }
-        public void AddCallbacks(IPlayerFirstPersonActions instance)
+        public static implicit operator InputActionMap(PlayerThirdPersonActions set) { return set.Get(); }
+        public void AddCallbacks(IPlayerThirdPersonActions instance)
         {
-            if (instance == null || m_Wrapper.m_PlayerFirstPersonActionsCallbackInterfaces.Contains(instance)) return;
-            m_Wrapper.m_PlayerFirstPersonActionsCallbackInterfaces.Add(instance);
+            if (instance == null || m_Wrapper.m_PlayerThirdPersonActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_PlayerThirdPersonActionsCallbackInterfaces.Add(instance);
             @Movement.started += instance.OnMovement;
             @Movement.performed += instance.OnMovement;
             @Movement.canceled += instance.OnMovement;
-            @Jump.started += instance.OnJump;
-            @Jump.performed += instance.OnJump;
-            @Jump.canceled += instance.OnJump;
+            @Boost.started += instance.OnBoost;
+            @Boost.performed += instance.OnBoost;
+            @Boost.canceled += instance.OnBoost;
             @Look.started += instance.OnLook;
             @Look.performed += instance.OnLook;
             @Look.canceled += instance.OnLook;
         }
 
-        private void UnregisterCallbacks(IPlayerFirstPersonActions instance)
+        private void UnregisterCallbacks(IPlayerThirdPersonActions instance)
         {
             @Movement.started -= instance.OnMovement;
             @Movement.performed -= instance.OnMovement;
             @Movement.canceled -= instance.OnMovement;
-            @Jump.started -= instance.OnJump;
-            @Jump.performed -= instance.OnJump;
-            @Jump.canceled -= instance.OnJump;
+            @Boost.started -= instance.OnBoost;
+            @Boost.performed -= instance.OnBoost;
+            @Boost.canceled -= instance.OnBoost;
             @Look.started -= instance.OnLook;
             @Look.performed -= instance.OnLook;
             @Look.canceled -= instance.OnLook;
         }
 
-        public void RemoveCallbacks(IPlayerFirstPersonActions instance)
+        public void RemoveCallbacks(IPlayerThirdPersonActions instance)
         {
-            if (m_Wrapper.m_PlayerFirstPersonActionsCallbackInterfaces.Remove(instance))
+            if (m_Wrapper.m_PlayerThirdPersonActionsCallbackInterfaces.Remove(instance))
                 UnregisterCallbacks(instance);
         }
 
-        public void SetCallbacks(IPlayerFirstPersonActions instance)
+        public void SetCallbacks(IPlayerThirdPersonActions instance)
         {
-            foreach (var item in m_Wrapper.m_PlayerFirstPersonActionsCallbackInterfaces)
+            foreach (var item in m_Wrapper.m_PlayerThirdPersonActionsCallbackInterfaces)
                 UnregisterCallbacks(item);
-            m_Wrapper.m_PlayerFirstPersonActionsCallbackInterfaces.Clear();
+            m_Wrapper.m_PlayerThirdPersonActionsCallbackInterfaces.Clear();
             AddCallbacks(instance);
         }
     }
-    public PlayerFirstPersonActions @PlayerFirstPerson => new PlayerFirstPersonActions(this);
-    public interface IPlayerFirstPersonActions
+    public PlayerThirdPersonActions @PlayerThirdPerson => new PlayerThirdPersonActions(this);
+    public interface IPlayerThirdPersonActions
     {
         void OnMovement(InputAction.CallbackContext context);
-        void OnJump(InputAction.CallbackContext context);
+        void OnBoost(InputAction.CallbackContext context);
         void OnLook(InputAction.CallbackContext context);
     }
 }

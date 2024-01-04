@@ -2071,6 +2071,12 @@ PrefabInstance:
       propertyPath: m_Orbits.Array.data[0].m_Height
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 5230365555319531386, guid: 6f5ec2bcfa65e5449830b2a043b4b7ec,
+        type: 3}
+      propertyPath: XYAxis
+      value: 
+      objectReference: {fileID: -7761744246484433766, guid: 73020fcb31b979a4fa8c75a2cf49cdb1,
+        type: 3}
     - target: {fileID: 7309852240148941083, guid: 6f5ec2bcfa65e5449830b2a043b4b7ec,
         type: 3}
       propertyPath: m_LocalPosition.y

@@ -162,5 +162,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playerSpeed: 20
-  _jumpHeight: 3
+  _boostStrength: 250
   _bouncerStrength: 1
