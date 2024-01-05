@@ -22,7 +22,7 @@ public class KillTrigger : MonoBehaviour
     {
         if (other.gameObject.name.Contains(_playerObjName))
         {
-            _gameManager.MiscDeathHappened = true;
+            _gameManager.DeathHappened = true;
         }
     }
 }

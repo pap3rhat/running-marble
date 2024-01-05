@@ -8,12 +8,9 @@ public class CentralMessageDisplay : MonoBehaviour
     [SerializeField] private GameObject _centralMessageObject;
     [SerializeField] private TextMeshProUGUI _centralMessageText;
 
-    private string _winText = "Winner!";
-    private string _loseText = "Loser!";
-
     private string _diedText = "You Died!";
 
-    private string _timeoutText = "time out!";
+    private string _gameOverText = "Game Over!";
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
@@ -21,9 +18,8 @@ public class CentralMessageDisplay : MonoBehaviour
     {
         _gameManager = GameManager.Instance;
 
-        _gameManager.MiscDeath.AddListener(OnMiscDeath);
-        _gameManager.TimeOut.AddListener(OnTimeOut);
-        _gameManager.EndState.AddListener(OnEndState);
+        _gameManager.Death.AddListener(OnDeath);
+        _gameManager.GameOver.AddListener(OnGameOver);
 
         _centralMessageObject.SetActive(false);
     }
@@ -31,17 +27,17 @@ public class CentralMessageDisplay : MonoBehaviour
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-    private void OnTimeOut(bool display)
+    private void OnGameOver(bool display)
     {
         if (display)
         {
-            _centralMessageText.text = _timeoutText;
+            _centralMessageText.text = _gameOverText;
         }
 
         _centralMessageObject.SetActive(display);
     }
 
-    private void OnMiscDeath(bool display)
+    private void OnDeath(bool display)
     {
         if (display)
         {
@@ -49,19 +45,5 @@ public class CentralMessageDisplay : MonoBehaviour
         }
 
         _centralMessageObject.SetActive(display);
-    }
-
-    private void OnEndState(bool won)
-    {
-        if (won)
-        {
-            _centralMessageText.text = _winText;
-        }
-        else
-        {
-            _centralMessageText.text = _loseText;
-        }
-
-        _centralMessageObject.SetActive(true);
     }
 }

@@ -532,16 +532,13 @@ MonoBehaviour:
   StartCountdown:
     m_PersistentCalls:
       m_Calls: []
-  TimeOut:
+  GameOver:
     m_PersistentCalls:
       m_Calls: []
-  MiscDeath:
+  Death:
     m_PersistentCalls:
       m_Calls: []
-  MiscDeathHappened: 0
-  EndState:
-    m_PersistentCalls:
-      m_Calls: []
+  DeathHappened: 0
   _modulePrefab: {fileID: 8814819389931930729, guid: 732fa45c249bd7f428b5f4abde4587b6,
     type: 3}
   _moduleActive: {fileID: 728351655}

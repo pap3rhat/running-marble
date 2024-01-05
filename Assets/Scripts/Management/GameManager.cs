@@ -20,7 +20,7 @@ public class GameManager : MonoBehaviour
 
     // Time Countdown
     private float _startTime;
-    private float _timerLength = 6000f;
+    private float _timerLength = 60f;
     [HideInInspector] public UnityEvent<float> TimeLeft = new();
     [HideInInspector] public UnityEvent<bool> TimerDisplayed = new();
 
@@ -37,18 +37,11 @@ public class GameManager : MonoBehaviour
 
     // Start 
     [HideInInspector] public UnityEvent StartCountdown = new();
-    // Time out death
-    [HideInInspector] public UnityEvent<bool> TimeOut = new();
+    // Time out -> Game Over
+    [HideInInspector] public UnityEvent<bool> GameOver = new();
     // Other kind of death
-    [HideInInspector] public UnityEvent<bool> MiscDeath = new();
-    public bool MiscDeathHappened = false;
-    // End state
-    [HideInInspector] public UnityEvent<bool> EndState = new();
-
-    // Goal destination -- TODO, switch to goal box trigger
-    //[SerializeField] private GameObject _goal;
-    //private Vector3 _goalPosition;
-    //private bool _playerWon = false;
+    [HideInInspector] public UnityEvent<bool> Death = new();
+    public bool DeathHappened = false;
 
     // Test obstacle switch
     // TODO: List of all differnet prefabs -> spawn random one
@@ -90,8 +83,6 @@ public class GameManager : MonoBehaviour
         SpawnPlayer(false);
         // Lifes
         _remainingLifes = _startingLifes;
-        // Goal
-        //_goalPosition = _goal.transform.position;
     }
 
     void Update()
@@ -101,9 +92,8 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        //CheckWin();
         CheckDeath();
-        // CheckCameraSwitch();
+        CheckGameOver();
         CountdownUpdate();
     }
 
@@ -151,22 +141,33 @@ public class GameManager : MonoBehaviour
     }
 
     /*
+     * Checks if game is over (0 lifes or time ran out)
+     */
+    private void CheckGameOver()
+    {
+        // Time ran out or no more lifes left
+        if (Time.time - _startTime >= _timerLength || _remainingLifes == 0)
+        {
+            // just clear everything
+            Death.Invoke(false);
+            GameOver.Invoke(true);
+            // Setting player to dead, and disallowing themto move
+            _playerAlive = false;
+            _inputManager.TriggerDisable();
+        }
+    }
+
+    /*
      * Checks if player died this frame.
      */
     private void CheckDeath()
     {
-        // Time ran out
-        if (Time.time - _startTime >= _timerLength)
+        // Player died
+        if (DeathHappened)
         {
-            TimeOut.Invoke(true);
-            StartCoroutine(Respawn(true));
-        }
-        // Player died in another way
-        else if (MiscDeathHappened)
-        {
-            MiscDeath.Invoke(true);
+            Death.Invoke(true);
             StartCoroutine(Respawn(false));
-            MiscDeathHappened = false;
+            DeathHappened = false;
         }
     }
 
@@ -176,6 +177,9 @@ public class GameManager : MonoBehaviour
      */
     private IEnumerator Respawn(bool timeDeath)
     {
+        // Do not count respawning time as time player has 
+        float respawnStartTime = Time.time;
+
         // Setting player to dead
         _playerAlive = false;
         PlayerDied.Invoke(_startingLifes, _remainingLifes);
@@ -194,17 +198,12 @@ public class GameManager : MonoBehaviour
             // Respawning player
             SpawnPlayer(true);
 
+            // Wait for died message to have been fully displayed
             yield return new WaitForSeconds(DiedMessageTime);
 
-            if (timeDeath) // player died because time ran out
-            {
-                TimeOut.Invoke(false);
-            }
-            else // player died because of other things
-            {
-                MiscDeath.Invoke(false);
-            }
+            Death.Invoke(false);
 
+            // Wait for respawn message to have been fully displayed
             yield return new WaitForSeconds(RespawnMessageTime);
 
             // Setting player to be alive again
@@ -212,34 +211,13 @@ public class GameManager : MonoBehaviour
 
             // Setting time back and displaying it again
             TimerDisplayed.Invoke(true);
-            _startTime = (float)Math.Round(Time.time, 2);
+            // TODO: subtract stuff here
+            _startTime -= (respawnStartTime- Time.time);
 
             // player can move again
             _inputManager.TriggerEnable();
         }
-
-        // End game if dead
-        if (_remainingLifes == 0)
-        {
-            // just clear everything
-            MiscDeath.Invoke(false);
-            TimeOut.Invoke(false);
-            EndState.Invoke(false);
-        }
     }
-
-    /*
-     * Checks if player won by meassuring player distance to goal. TODO: exhcange with win trigger box
-     */
-    //private void CheckWin()
-    //{
-    //    if (Vector3.Distance(_currentPlayerObject.transform.position, _goalPosition) < 0.5)
-    //    {
-    //        _playerWon = true;
-    //        EndState.Invoke(true);
-    //    }
-    //}
-
 
     /* 
      * Handles spawning of player.
