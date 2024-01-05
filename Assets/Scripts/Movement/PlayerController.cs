@@ -78,7 +78,7 @@ public class PlayerController : MonoBehaviour
         UniversalRenderPipelineUtils.SetRendererFeatureActive("SpeedLines", false);
         yield return new WaitForSeconds(_boostCooldown - _vfxLength);
 
-        _bloom.intensity.Override(2f);
+        _bloom.intensity.Override(1f);
         _isBoosting = false;
        
 
@@ -91,7 +91,7 @@ public class PlayerController : MonoBehaviour
         // Deactivating Render Feature
         UniversalRenderPipelineUtils.SetRendererFeatureActive("SpeedLines", false);
         // Letting player immediatly boost again
-        _bloom.intensity.Override(2f);
+        _bloom.intensity.Override(1f);
         _isBoosting = false;
     }
 }

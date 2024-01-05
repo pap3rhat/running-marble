@@ -387,7 +387,7 @@ MonoBehaviour:
     m_Value: 1.05
   intensity:
     m_OverrideState: 1
-    m_Value: 2
+    m_Value: 1
   scatter:
     m_OverrideState: 0
     m_Value: 0.7
@@ -396,7 +396,7 @@ MonoBehaviour:
     m_Value: 65472
   tint:
     m_OverrideState: 1
-    m_Value: {r: 0.42745098, g: 0.58431375, b: 1, a: 1}
+    m_Value: {r: 0, g: 0.273973, b: 1, a: 1}
   highQualityFiltering:
     m_OverrideState: 0
     m_Value: 0

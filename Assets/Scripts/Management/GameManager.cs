@@ -72,7 +72,7 @@ public class GameManager : MonoBehaviour
         _popMod.PopulateWithPrefab(_currentObjectAmount);
 
         // Activating fog, to enhance illusion of endlessness
-        //RenderSettings.fog = true;
+        RenderSettings.fog = true;
     }
 
     void Start()

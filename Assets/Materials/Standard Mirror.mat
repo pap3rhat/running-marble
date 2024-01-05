@@ -97,6 +97,7 @@ Material:
     m_Floats:
     - _AlphaClip: 0
     - _AlphaToMask: 0
+    - _Amplitude: 0.15
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
@@ -109,12 +110,14 @@ Material:
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EnvironmentReflections: 1
+    - _Frequency: 10
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _Metallic: 1
     - _OcclusionStrength: 1
     - _Parallax: 0.005
+    - _Phase_Displacement: 30
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
