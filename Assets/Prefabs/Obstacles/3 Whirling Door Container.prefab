@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8240717298701446234}
   m_Layer: 0
-  m_Name: Whirling Door Container
+  m_Name: 3 Whirling Door Container
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

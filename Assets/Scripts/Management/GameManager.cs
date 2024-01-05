@@ -20,7 +20,7 @@ public class GameManager : MonoBehaviour
 
     // Time Countdown
     private float _startTime;
-    private float _timerLength = 60f;
+    private float _timerLength = 600f;
     [HideInInspector] public UnityEvent<float> TimeLeft = new();
     [HideInInspector] public UnityEvent<bool> TimerDisplayed = new();
 
@@ -121,11 +121,15 @@ public class GameManager : MonoBehaviour
         _currentLevel++;
         LevelUpdate.Invoke(_currentLevel);
 
+        // Ereasing old level
+        _popMod.DepopulatePrefabs();
+        // Creating new level
+        _currentObjectAmount += 5;
+        _popMod.PopulateWithPrefab(_currentObjectAmount);
+
         // Setting player back, but keeping x and y coordinate, so it is not as obvious
         Vector3 playerPosition = _currentPlayerObject.transform.position;
         _currentPlayerObject.transform.position = new Vector3(playerPosition.x, playerPosition.y, _playerSpawnPosition.z);
-
-
     }
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/

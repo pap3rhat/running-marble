@@ -161,7 +161,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7893137571148901917}
   m_Layer: 0
-  m_Name: Falling Wall Container
+  m_Name: 4 Falling Wall Container
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

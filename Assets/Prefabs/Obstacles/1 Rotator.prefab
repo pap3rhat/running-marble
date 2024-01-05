@@ -332,7 +332,7 @@ GameObject:
   - component: {fileID: 7899470671254694128}
   - component: {fileID: 2642593199955733221}
   m_Layer: 0
-  m_Name: Rotator
+  m_Name: 1 Rotator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -6,23 +6,13 @@ using UnityEngine;
 
 public class PopulateModule : MonoBehaviour
 {
-    // All the different obstacle prefabs
-    [SerializeField] private List<GameObject> _prefabs = new();
-
-    // Constants for different obstacles
+    // Constants for different obstacles spawn heights
     private static float BOUNCER_HEIGHT = 0.6f;
     private static float ROTATOR_HEIGHT = 0.6f;
     private static float REVOLVING_DOOR_HEIGHT = 0.76f;
     private static float WHIRLING_DOOR_HEIGHT = 0.8f;
     private static float FALLING_WALL_HEIGHT = 1.2f;
     private static float SPIKE_HEIGHT = 0.6f;
-
-    private static int BOUNCER_IDX = 0;
-    private static int ROTATOR_IDX = 1;
-    private static int REVOLVING_DOOR_IDX = 2;
-    private static int WHIRLING_DOOR_IDX = 3;
-    private static int FALLING_WALL_IDX = 4;
-    private static int SPIKE_IDX = 5;
 
     // Constants for spawing area -> not square, because area is not sqaue but like 1:0.4444
     private static int HEIGHT = 18;
@@ -31,6 +21,16 @@ public class PopulateModule : MonoBehaviour
     // Lists for saving free spaces with obstacles placed on them
     private List<(int, int)> _freeSpaces = new();
     private Dictionary<int, List<(int, int)>> _populatePlaces = new(); // key determines what kind of obstacle list of placing spaces belongs to
+
+    // Access to obstacle pool
+    private GeneralFactory _generalFactory;
+
+    /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+    private void Awake()
+    {
+        _generalFactory = GeneralFactory.Instance;
+    }
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
@@ -42,12 +42,15 @@ public class PopulateModule : MonoBehaviour
         int setObjects = 0;
 
         // --- Init Lists ---
+        _freeSpaces = new();
         _freeSpaces = Enumerable.Range(0, WIDTH).ToList().SelectMany(x => Enumerable.Range(0, HEIGHT).ToList(), (x, y) => (x, y)).ToList();
+        _populatePlaces = new();
         for (int i = 0; i < 6; i++)
         {
             _populatePlaces.Add(i, new List<(int, int)>());
         }
 
+        Debug.Log(objectAmount);
 
         // Adding new obsatcles as long as maximum amount of obstacle has not been reached or until no more obstacles can be placed due to space restrictions.
         // Space restrictions might lead to less obsatcles being placed that the given object amount, but that only happens when a lot of objects should be placed (like 70+) and at that point that's okay (it's my game, I can say that).
@@ -66,42 +69,42 @@ public class PopulateModule : MonoBehaviour
                 {
                     case 0:
                         // Adding bouncer
-                        _populatePlaces[BOUNCER_IDX].Add(_freeSpaces[randomIdx]);
+                        _populatePlaces[(int)PoupulateIndicies.BOUNCER_IDX].Add(_freeSpaces[randomIdx]);
                         // Removing current space from free spaces
                         _freeSpaces.RemoveAt(randomIdx);
                         break;
 
                     case 1:
                         // Adding rotator
-                        _populatePlaces[ROTATOR_IDX].Add(_freeSpaces[randomIdx]);
+                        _populatePlaces[(int)PoupulateIndicies.ROTATOR_IDX].Add(_freeSpaces[randomIdx]);
                         // Removing neighbors and current space from free spaces
                         RemoveNeighborhood(x, y);
                         break;
 
                     case 2:
                         // Adding revolving door
-                        _populatePlaces[REVOLVING_DOOR_IDX].Add(_freeSpaces[randomIdx]);
+                        _populatePlaces[(int)PoupulateIndicies.REVOLVING_DOOR_IDX].Add(_freeSpaces[randomIdx]);
                         // Removing neighbors from free spaces
                         RemoveNeighborhood(x, y);
                         break;
 
                     case 3:
                         // Adding whirling door
-                        _populatePlaces[WHIRLING_DOOR_IDX].Add(_freeSpaces[randomIdx]);
+                        _populatePlaces[(int)PoupulateIndicies.WHIRLING_DOOR_IDX].Add(_freeSpaces[randomIdx]);
                         // Removing neighbors from free spaces
                         RemoveNeighborhood(x, y);
                         break;
 
                     case 4:
                         // Adding falling wall
-                        _populatePlaces[FALLING_WALL_IDX].Add(_freeSpaces[randomIdx]);
+                        _populatePlaces[(int)PoupulateIndicies.FALLING_WALL_IDX].Add(_freeSpaces[randomIdx]);
                         // Removing current space from free spaces
                         _freeSpaces.RemoveAt(randomIdx);
                         break;
 
                     case 5:
                         // Adding spike
-                        _populatePlaces[SPIKE_IDX].Add(_freeSpaces[randomIdx]);
+                        _populatePlaces[(int)PoupulateIndicies.SPIKE_IDX].Add(_freeSpaces[randomIdx]);
                         // Removing current space from free spaces
                         _freeSpaces.RemoveAt(randomIdx);
                         break;
@@ -113,21 +116,21 @@ public class PopulateModule : MonoBehaviour
                 {
                     case 0:
                         // Adding bouncer
-                        _populatePlaces[BOUNCER_IDX].Add(_freeSpaces[randomIdx]);
+                        _populatePlaces[(int)PoupulateIndicies.BOUNCER_IDX].Add(_freeSpaces[randomIdx]);
                         // Removing current space from free spaces
                         _freeSpaces.RemoveAt(randomIdx);
                         break;
 
                     case 1:
                         // Adding falling wall
-                        _populatePlaces[FALLING_WALL_IDX].Add(_freeSpaces[randomIdx]);
+                        _populatePlaces[(int)PoupulateIndicies.FALLING_WALL_IDX].Add(_freeSpaces[randomIdx]);
                         // Removing current space from free spaces
                         _freeSpaces.RemoveAt(randomIdx);
                         break;
 
                     case 2:
                         // Adding spike
-                        _populatePlaces[SPIKE_IDX].Add(_freeSpaces[randomIdx]);
+                        _populatePlaces[(int)PoupulateIndicies.SPIKE_IDX].Add(_freeSpaces[randomIdx]);
                         // Removing current space from free spaces
                         _freeSpaces.RemoveAt(randomIdx);
                         break;
@@ -139,38 +142,49 @@ public class PopulateModule : MonoBehaviour
 
         // --- Instantiating obstacles ---
         {
-            foreach (var bouncer in _populatePlaces[BOUNCER_IDX])
+            foreach (var bouncer in _populatePlaces[(int)PoupulateIndicies.BOUNCER_IDX])
             {
                 InstantiateBouncer(bouncer.Item1, bouncer.Item2);
             }
 
-            foreach (var rotator in _populatePlaces[ROTATOR_IDX])
+            foreach (var rotator in _populatePlaces[(int)PoupulateIndicies.ROTATOR_IDX])
             {
                 InstantiateRotator(rotator.Item1, rotator.Item2);
             }
 
-            foreach (var rdoor in _populatePlaces[REVOLVING_DOOR_IDX])
+            foreach (var rdoor in _populatePlaces[(int)PoupulateIndicies.REVOLVING_DOOR_IDX])
             {
                 InstantiateRevolvingDoor(rdoor.Item1, rdoor.Item2);
             }
 
-            foreach (var wdoor in _populatePlaces[WHIRLING_DOOR_IDX])
+            foreach (var wdoor in _populatePlaces[(int)PoupulateIndicies.WHIRLING_DOOR_IDX])
             {
                 InstantiateWhirlingDoor(wdoor.Item1, wdoor.Item2);
             }
 
-            foreach (var fwall in _populatePlaces[FALLING_WALL_IDX])
+            foreach (var fwall in _populatePlaces[(int)PoupulateIndicies.FALLING_WALL_IDX])
             {
                 InstantiateFallingWall(fwall.Item1, fwall.Item2);
             }
 
-            foreach (var spike in _populatePlaces[SPIKE_IDX])
+            foreach (var spike in _populatePlaces[(int)PoupulateIndicies.SPIKE_IDX])
             {
                 InstantiateSpike(spike.Item1, spike.Item2);
             }
         }
     }
 
+
+    /*
+     * Removes all obstacles from module.
+     */
+    public void DepopulatePrefabs()
+    {
+        foreach(Transform obstacle in this.transform)
+        {
+            _generalFactory.ReturnToPool(obstacle.gameObject);
+        }
+    }
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
@@ -182,9 +196,9 @@ public class PopulateModule : MonoBehaviour
     {
         List<(int, int)> neighborhood = GetNeighborhood(x, y);
 
-        return (neighborhood.Intersect(_populatePlaces[BOUNCER_IDX]).Count() == 0)  // True if no bouncer in neighborhood
-            && (neighborhood.Intersect(_populatePlaces[FALLING_WALL_IDX]).Count() == 0)  // True if no fwall in neighborhood
-            && (neighborhood.Intersect(_populatePlaces[SPIKE_IDX]).Count() == 0); // True if no spike in neighborhood
+        return (neighborhood.Intersect(_populatePlaces[(int)PoupulateIndicies.BOUNCER_IDX]).Count() == 0)  // True if no bouncer in neighborhood
+            && (neighborhood.Intersect(_populatePlaces[(int)PoupulateIndicies.FALLING_WALL_IDX]).Count() == 0)  // True if no fwall in neighborhood
+            && (neighborhood.Intersect(_populatePlaces[(int)PoupulateIndicies.SPIKE_IDX]).Count() == 0); // True if no spike in neighborhood
     }
 
     /*
@@ -238,7 +252,7 @@ public class PopulateModule : MonoBehaviour
      */
     private void InstantiateBouncer(int x, int y)
     {
-        var go = Instantiate(_prefabs[BOUNCER_IDX]);
+        var go = _generalFactory.Spawn((int)PoupulateIndicies.BOUNCER_IDX);
 
         go.transform.SetParent(this.transform, true);
         go.transform.localPosition = new Vector3(((float)x).Remap(0, WIDTH - 1, -0.5f, 0.5f),
@@ -251,7 +265,7 @@ public class PopulateModule : MonoBehaviour
      */
     private void InstantiateRotator(int x, int y)
     {
-        var go = Instantiate(_prefabs[ROTATOR_IDX]);
+        var go = _generalFactory.Spawn((int)PoupulateIndicies.ROTATOR_IDX);
 
         go.transform.SetParent(this.transform, true);
         go.transform.localPosition = new Vector3(((float)x).Remap(0, WIDTH - 1, -0.5f, 0.5f),
@@ -264,7 +278,7 @@ public class PopulateModule : MonoBehaviour
      */
     private void InstantiateRevolvingDoor(int x, int y)
     {
-        var go = Instantiate(_prefabs[REVOLVING_DOOR_IDX]);
+        var go = _generalFactory.Spawn((int)PoupulateIndicies.REVOLVING_DOOR_IDX);
 
         go.transform.SetParent(this.transform, true);
         go.transform.localPosition = new Vector3(((float)x).Remap(0, WIDTH - 1, -0.5f, 0.5f),
@@ -286,7 +300,7 @@ public class PopulateModule : MonoBehaviour
     */
     private void InstantiateWhirlingDoor(int x, int y)
     {
-        var go = Instantiate(_prefabs[WHIRLING_DOOR_IDX]);
+        var go = _generalFactory.Spawn((int)PoupulateIndicies.WHIRLING_DOOR_IDX);
 
         go.transform.SetParent(this.transform, true);
         go.transform.localPosition = new Vector3(((float)x).Remap(0, WIDTH - 1, -0.5f, 0.5f),
@@ -309,7 +323,7 @@ public class PopulateModule : MonoBehaviour
      */
     private void InstantiateFallingWall(int x, int y)
     {
-        var go = Instantiate(_prefabs[FALLING_WALL_IDX]);
+        var go = _generalFactory.Spawn((int)PoupulateIndicies.FALLING_WALL_IDX);
 
         go.transform.SetParent(this.transform, true);
         go.transform.localPosition = new Vector3(((float)x).Remap(0, WIDTH - 1, -0.5f, 0.5f),
@@ -333,7 +347,7 @@ public class PopulateModule : MonoBehaviour
     */
     private void InstantiateSpike(int x, int y)
     {
-        var go = Instantiate(_prefabs[SPIKE_IDX]);
+        var go = _generalFactory.Spawn((int)PoupulateIndicies.SPIKE_IDX);
 
         go.transform.SetParent(this.transform, true);
         go.transform.localPosition = new Vector3(((float)x).Remap(0, WIDTH - 1, -0.5f, 0.5f),
