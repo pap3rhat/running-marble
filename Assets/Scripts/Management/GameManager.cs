@@ -28,6 +28,10 @@ public class GameManager : MonoBehaviour
     private int _startingLifes = 3;
     private int _remainingLifes;
 
+    // Level
+    private int _currentLevel = 1;
+    [HideInInspector] public UnityEvent<int> LevelUpdate = new();
+
     // Respawn
     private bool _playerAlive = false;
     [HideInInspector] public UnityEvent<int, int> PlayerDied = new();
@@ -38,9 +42,7 @@ public class GameManager : MonoBehaviour
     [HideInInspector] public UnityEvent StartCountdown = new();
     // Time out -> Game Over
     [HideInInspector] public UnityEvent<bool> GameOver = new();
-    // Other kind of death
-    [HideInInspector] public UnityEvent<bool> Death = new();
-    public bool DeathHappened = false;
+    public bool DeathHappened = false; // gets set by killtrigger
 
     // Test obstacle switch
     // TODO: List of all differnet prefabs -> spawn random one
@@ -116,6 +118,10 @@ public class GameManager : MonoBehaviour
      */
     public void CheckpointReached()
     {
+        // Updating Level display
+        _currentLevel++;
+        LevelUpdate.Invoke(_currentLevel);
+
         // Setting player back, but keeping x and y coordinate, so it is not as obvious
         Vector3 playerPosition = _currentPlayerObject.transform.position;
         _currentPlayerObject.transform.position = new Vector3(playerPosition.x, playerPosition.y, _playerSpawnPosition.z);
@@ -146,7 +152,6 @@ public class GameManager : MonoBehaviour
         if (Time.time - _startTime >= _timerLength || _remainingLifes == 0)
         {
             // just clear everything
-            Death.Invoke(false);
             GameOver.Invoke(true);
             // Setting player to dead, and disallowing themto move
             _playerAlive = false;
@@ -162,8 +167,7 @@ public class GameManager : MonoBehaviour
         // Player died
         if (DeathHappened)
         {
-            Death.Invoke(true);
-            StartCoroutine(Respawn(false));
+            StartCoroutine(Respawn());
             DeathHappened = false;
         }
     }
@@ -172,7 +176,7 @@ public class GameManager : MonoBehaviour
      * Restarts the game if enough lifes are left.
      * TODO: REMOVE THIS UGLY SPHAGET (or don't, because there is no non-ugly way, mabye, probably, who even knows)
      */
-    private IEnumerator Respawn(bool timeDeath)
+    private IEnumerator Respawn()
     {
         // Do not count respawning time as time player has 
         float respawnStartTime = Time.time;
@@ -194,8 +198,6 @@ public class GameManager : MonoBehaviour
 
             // Respawning player
             SpawnPlayer(true);
-
-            Death.Invoke(false);
 
             // Wait for respawn message to have been fully displayed
             yield return new WaitForSeconds(RespawnMessageTime);

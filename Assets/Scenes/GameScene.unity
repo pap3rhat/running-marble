@@ -521,6 +521,9 @@ MonoBehaviour:
   TimerDisplayed:
     m_PersistentCalls:
       m_Calls: []
+  LevelUpdate:
+    m_PersistentCalls:
+      m_Calls: []
   PlayerDied:
     m_PersistentCalls:
       m_Calls: []
@@ -532,9 +535,6 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   GameOver:
-    m_PersistentCalls:
-      m_Calls: []
-  Death:
     m_PersistentCalls:
       m_Calls: []
   DeathHappened: 0
@@ -1401,8 +1401,8 @@ GameObject:
   - component: {fileID: 1184522118}
   - component: {fileID: 1184522122}
   - component: {fileID: 1184522121}
-  - component: {fileID: 1184522120}
   - component: {fileID: 1184522119}
+  - component: {fileID: 1184522123}
   m_Layer: 0
   m_Name: UI
   m_TagString: Untagged
@@ -1439,21 +1439,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _centralMessageObject: {fileID: 985796288}
   _centralMessageText: {fileID: 107611538}
---- !u!114 &1184522120
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1184522117}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ad889e827adbb1544b1ba18a05395628, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _gameManager: {fileID: 0}
-  _countdownText: {fileID: 0}
-  _countdownObj: {fileID: 0}
 --- !u!114 &1184522121
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1485,6 +1470,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _countdownObject: {fileID: 1719120904}
   _countdownText: {fileID: 2142847822}
+--- !u!114 &1184522123
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1184522117}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e450fcf4c525c5c47abfc7959d3f1e01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _levelText: {fileID: 613678240}
 --- !u!1 &1203937265
 GameObject:
   m_ObjectHideFlags: 0
