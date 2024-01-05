@@ -17,7 +17,7 @@ public class LevelDisplay : MonoBehaviour
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
     /*
-     *  Handles displaying remaining time.
+     *  Handles displaying current level.
      */
     private void OnLevelUpdate(int lvl)
     {

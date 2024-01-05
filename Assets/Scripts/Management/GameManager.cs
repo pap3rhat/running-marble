@@ -28,9 +28,11 @@ public class GameManager : MonoBehaviour
     private int _startingLifes = 3;
     private int _remainingLifes;
 
-    // Level
+    // Level Progression
     private int _currentLevel = 1;
     [HideInInspector] public UnityEvent<int> LevelUpdate = new();
+    private int _currentObjectAmount = 5;
+    private PopulateModule _popMod;
 
     // Respawn
     private bool _playerAlive = false;
@@ -44,15 +46,6 @@ public class GameManager : MonoBehaviour
     [HideInInspector] public UnityEvent<bool> GameOver = new();
     public bool DeathHappened = false; // gets set by killtrigger
 
-    // Test obstacle switch
-    // TODO: List of all differnet prefabs -> spawn random one
-    // Number of how many after another, then goal one -> own prefab
-    // Get active one from hierarchy at beginning (search for module active or start or something)
-    [SerializeField] private GameObject _modulePrefab;
-    [SerializeField] private GameObject _moduleActive;
-
-
-
     // Instance
     private static GameManager _instance;
     public static GameManager Instance { get => _instance; }
@@ -61,6 +54,7 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
+        // Singelton
         if (_instance != null && _instance != this)
         {
             Destroy(this.gameObject);
@@ -70,10 +64,15 @@ public class GameManager : MonoBehaviour
             _instance = this;
         }
 
-        // TODO 
-        //RenderSettings.fog = true;
-
+        // Getting inputmanager, so controls can be disabled or enabled by gamemanager
         _inputManager = InputManager.Instance;
+
+        // Setting up first level up
+        _popMod = GameObject.Find("Base Module").GetComponentInChildren<PopulateModule>();
+        _popMod.PopulateWithPrefab(_currentObjectAmount);
+
+        // Activating fog, to enhance illusion of endlessness
+        //RenderSettings.fog = true;
     }
 
     void Start()
@@ -101,9 +100,8 @@ public class GameManager : MonoBehaviour
     /* Used to tell GameManger that game truely started (spawning animation is done) and they can start everything */
     public void GameStarted()
     {
+        // player can move and is alive
         _playerAlive = true;
-
-        // player can move
         _inputManager.TriggerEnable();
 
         // Countdown
@@ -115,6 +113,7 @@ public class GameManager : MonoBehaviour
     /* 
      * Used to tell GameManger that Checkpoint got reached.
      * Teleports player back to beginning.
+     * Repopulates level.
      */
     public void CheckpointReached()
     {
@@ -126,11 +125,7 @@ public class GameManager : MonoBehaviour
         Vector3 playerPosition = _currentPlayerObject.transform.position;
         _currentPlayerObject.transform.position = new Vector3(playerPosition.x, playerPosition.y, _playerSpawnPosition.z);
 
-        // Setting new element of track
-        Vector3 spawnPos = _moduleActive.transform.position;
-        Quaternion spawnRot = _moduleActive.transform.rotation;
-        Destroy(_moduleActive);
-        _moduleActive = Instantiate(_modulePrefab, spawnPos, spawnRot);
+
     }
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/

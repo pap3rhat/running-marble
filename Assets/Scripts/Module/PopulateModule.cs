@@ -28,27 +28,19 @@ public class PopulateModule : MonoBehaviour
     private static int HEIGHT = 18;
     private static int WIDTH = 8;
 
-    // Amount ob obstacles to be idealy spawned and amoutn that already has been placed
-    private int _objectAmount = 80;
-    private int _setObjects = 0;
-
     // Lists for saving free spaces with obstacles placed on them
     private List<(int, int)> _freeSpaces = new();
     private Dictionary<int, List<(int, int)>> _populatePlaces = new(); // key determines what kind of obstacle list of placing spaces belongs to
-    /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-
-    private void Awake()
-    {
-        PopulateWithPrefab();
-    }
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
     /*
      * Fills up module with obstacles.
      */
-    private void PopulateWithPrefab()
+    public void PopulateWithPrefab(int objectAmount)
     {
+        int setObjects = 0;
+
         // --- Init Lists ---
         _freeSpaces = Enumerable.Range(0, WIDTH).ToList().SelectMany(x => Enumerable.Range(0, HEIGHT).ToList(), (x, y) => (x, y)).ToList();
         for (int i = 0; i < 6; i++)
@@ -59,7 +51,7 @@ public class PopulateModule : MonoBehaviour
 
         // Adding new obsatcles as long as maximum amount of obstacle has not been reached or until no more obstacles can be placed due to space restrictions.
         // Space restrictions might lead to less obsatcles being placed that the given object amount, but that only happens when a lot of objects should be placed (like 70+) and at that point that's okay (it's my game, I can say that).
-        while ((_setObjects < _objectAmount) && (_freeSpaces.Count != 0))
+        while ((setObjects < objectAmount) && (_freeSpaces.Count != 0))
         {
             int randomIdx = UnityEngine.Random.Range(0, _freeSpaces.Count - 1);
 
@@ -142,10 +134,8 @@ public class PopulateModule : MonoBehaviour
                 }
             }
 
-            _setObjects++;
+            setObjects++;
         }
-
-        Debug.Log(_setObjects);
 
         // --- Instantiating obstacles ---
         {

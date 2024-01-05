@@ -538,9 +538,6 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   DeathHappened: 0
-  _modulePrefab: {fileID: 8814819389931930729, guid: 732fa45c249bd7f428b5f4abde4587b6,
-    type: 3}
-  _moduleActive: {fileID: 728351655}
 --- !u!4 &219741801
 Transform:
   m_ObjectHideFlags: 0
@@ -1312,12 +1309,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 703389628}
   m_CullTransparentMesh: 1
---- !u!1 &728351655 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8814819389931930729, guid: 732fa45c249bd7f428b5f4abde4587b6,
-    type: 3}
-  m_PrefabInstance: {fileID: 7217170385754649984}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &985796288
 GameObject:
   m_ObjectHideFlags: 0
