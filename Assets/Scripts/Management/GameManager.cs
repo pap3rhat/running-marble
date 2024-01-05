@@ -33,7 +33,6 @@ public class GameManager : MonoBehaviour
     [HideInInspector] public UnityEvent<int, int> PlayerDied = new();
     [HideInInspector] public UnityEvent RespawnCountdown = new();
     [HideInInspector] public float RespawnMessageTime; // used to control how long respawning message is shown; gets set be RespawingDisplay UI class, because that one control coroutine
-    [HideInInspector] public float DiedMessageTime; // used to control how long died message is shown
 
     // Start 
     [HideInInspector] public UnityEvent StartCountdown = new();
@@ -68,8 +67,6 @@ public class GameManager : MonoBehaviour
         {
             _instance = this;
         }
-
-        DiedMessageTime = 1f; // setting here, so it does not have to be set in inspector
 
         // TODO 
         //RenderSettings.fog = true;
@@ -198,9 +195,6 @@ public class GameManager : MonoBehaviour
             // Respawning player
             SpawnPlayer(true);
 
-            // Wait for died message to have been fully displayed
-            yield return new WaitForSeconds(DiedMessageTime);
-
             Death.Invoke(false);
 
             // Wait for respawn message to have been fully displayed
@@ -212,7 +206,7 @@ public class GameManager : MonoBehaviour
             // Setting time back and displaying it again
             TimerDisplayed.Invoke(true);
             // TODO: subtract stuff here
-            _startTime -= (respawnStartTime- Time.time);
+            _startTime -= (respawnStartTime - Time.time);
 
             // player can move again
             _inputManager.TriggerEnable();
