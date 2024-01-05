@@ -29,15 +29,11 @@ public class CentralMessageDisplay : MonoBehaviour
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
     /* GAME OVER */
-    private void OnGameOver(bool display)
+    private void OnGameOver()
     {
-        if (display)
-        {
-            _centralMessageText.alpha = 1;
-            _centralMessageText.text = _gameOverText;
-        }
-
-        _centralMessageObject.SetActive(display);
+        _centralMessageText.alpha = 1;
+        _centralMessageText.text = _gameOverText;
+        _centralMessageObject.SetActive(true);
     }
 
     /* SPAWNING */

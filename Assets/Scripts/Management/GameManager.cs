@@ -43,7 +43,7 @@ public class GameManager : MonoBehaviour
     // Start 
     [HideInInspector] public UnityEvent StartCountdown = new();
     // Time out -> Game Over
-    [HideInInspector] public UnityEvent<bool> GameOver = new();
+    [HideInInspector] public UnityEvent GameOver = new();
     public bool DeathHappened = false; // gets set by killtrigger
 
     // Instance
@@ -151,7 +151,7 @@ public class GameManager : MonoBehaviour
         if (Time.time - _startTime >= _timerLength || _remainingLifes == 0)
         {
             // just clear everything
-            GameOver.Invoke(true);
+            GameOver.Invoke();
             // Setting player to dead, and disallowing themto move
             _playerAlive = false;
             _inputManager.TriggerDisable();

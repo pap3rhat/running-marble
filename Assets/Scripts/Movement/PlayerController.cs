@@ -1,6 +1,6 @@
 using System.Collections;
 using UnityEngine;
-
+using UnityEngine.Rendering;
 
 public class PlayerController : MonoBehaviour
 {
@@ -12,12 +12,26 @@ public class PlayerController : MonoBehaviour
     private InputManager _inputManager;
     private Transform _cameraTransform;
 
+    private GameManager _gameManager;
+    private UnityEngine.Rendering.Universal.Bloom _bloom;
+
     // Controls boost cooldown & vfx length
     private bool _isBoosting = false;
     private float _vfxLength = 2f;
     private float _boostCooldown = 5f;
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+    private void Awake()
+    {
+        _gameManager = GameManager.Instance;
+        _gameManager.RespawnCountdown.AddListener(StopBoostVFX);
+        _gameManager.GameOver.AddListener(StopBoostVFX);
+
+        var cam = GameObject.Find("Main Camera");
+        var vol = cam.GetComponent<Volume>();
+        if (!vol.profile.TryGet(out _bloom)) throw new System.NullReferenceException(nameof(_bloom));
+    }
 
     private void Start()
     {
@@ -55,12 +69,29 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator BoostControl()
     {
+       
+        _bloom.intensity.Override(0f);
+
         _isBoosting = true;
         UniversalRenderPipelineUtils.SetRendererFeatureActive("SpeedLines", true);
         yield return new WaitForSeconds(_vfxLength);
         UniversalRenderPipelineUtils.SetRendererFeatureActive("SpeedLines", false);
         yield return new WaitForSeconds(_boostCooldown - _vfxLength);
+
+        _bloom.intensity.Override(2f);
         _isBoosting = false;
-    
+       
+
+    }
+
+    private void StopBoostVFX()
+    {
+        // Stopping Boost Effect if it is happening
+        StopCoroutine(BoostControl());
+        // Deactivating Render Feature
+        UniversalRenderPipelineUtils.SetRendererFeatureActive("SpeedLines", false);
+        // Letting player immediatly boost again
+        _bloom.intensity.Override(2f);
+        _isBoosting = false;
     }
 }
