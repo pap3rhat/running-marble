@@ -1,4 +1,6 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -7,6 +9,10 @@ using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
 {
+    // Main Menu
+    [SerializeField] private GameObject _mainMenu;
+
+    // Settings UI Elements
     [SerializeField] private GameObject _settings;
     private CanvasGroup _settingsCanvas;
     [SerializeField] private TMP_Dropdown _srSetting;
@@ -18,32 +24,47 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private Slider _svSetting;
     [SerializeField] private TextMeshProUGUI _svSettingText;
 
-    [SerializeField] private GameObject _credits;
-    private CanvasGroup _creditsCanvas;
+    // Settings Content
+    private List<TMPro.TMP_Dropdown.OptionData> _resolutions = new();
+    private List<TMPro.TMP_Dropdown.OptionData> _displayModes = new();
 
     private float _fadeInTime = 0.7f;
     private float _fadeOutTime = 0.7f;
 
+    private GameManager _gameManager;
+
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+    private void Awake()
+    {
+        _gameManager = GameManager.Instance;
+    }
 
     private void Start()
     {
         _settingsCanvas = _settings.GetComponent<CanvasGroup>();
         _settingsCanvas.alpha = 0;
         _settings.SetActive(false);
-        _creditsCanvas = _credits.GetComponent<CanvasGroup>();
-        _creditsCanvas.alpha = 0;
-        _credits.SetActive(false);
 
-        _srSetting.options = Screen.resolutions.Select(r => new TMP_Dropdown.OptionData(r.ToString())).ToList();
+        _resolutions = Screen.resolutions.Select(r => new TMP_Dropdown.OptionData(r.ToString().Split("@")[0])).ToList();
+        // TODO: figure out why that is not working
+        _resolutions = _resolutions.Distinct().ToList();
+        _srSetting.options = _resolutions;
+        _srSetting.onValueChanged.AddListener(ChangeScreenResolution);
 
-        _dmSetting.options = FullScreenMode.GetNames(typeof(FullScreenMode)).ToList().Select(r => new TMP_Dropdown.OptionData(r.ToString())).ToList();
+        _displayModes = FullScreenMode.GetNames(typeof(FullScreenMode)).ToList().Select(r => new TMP_Dropdown.OptionData(r.ToString())).ToList();
+        _dmSetting.options = _displayModes;
+        _dmSetting.onValueChanged.AddListener(ChangeDisplayMode);
 
+
+        // TODO: figure out how to make UI differently sized
         _usSetting.minValue = 0.25f;
         _usSetting.maxValue = 5;
         _usSetting.onValueChanged.AddListener(value => _usSettingText.text = value.ToString());
         _usSetting.value = 1;
 
+
+        // TODO: do this once sound and music is implemented
         _mvSetting.minValue = 0;
         _mvSetting.maxValue = 100;
         _mvSetting.wholeNumbers = true;
@@ -61,9 +82,10 @@ public class MainMenu : MonoBehaviour
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
     /* START */
-    public void LoadScene(string scene)
+    public void StartGame()
     {
-        SceneManager.LoadScene(scene);
+        _mainMenu.SetActive(false);
+        _gameManager.StartGame();
     }
 
     /* SETTINGS PANEL */
@@ -78,18 +100,6 @@ public class MainMenu : MonoBehaviour
         StartCoroutine(FadeOut(_settingsCanvas, _settings));
     }
 
-    /* CREDITS PANEL */
-    public void AccessCredits()
-    {
-        _credits.SetActive(true);
-        StartCoroutine(FadeIn(_creditsCanvas));
-    }
-
-    public void CloseCredits()
-    {
-        StartCoroutine(FadeOut(_creditsCanvas, _credits));
-    }
-
     /* FADE FUNCTIONS */
     private IEnumerator FadeIn(CanvasGroup canvas)
     {
@@ -97,7 +107,7 @@ public class MainMenu : MonoBehaviour
         while (t < _fadeInTime)
         {
             t += Time.deltaTime;
-            canvas.alpha = t * 1/ _fadeInTime;
+            canvas.alpha = t * 1 / _fadeInTime;
             yield return null;
         }
     }
@@ -108,7 +118,7 @@ public class MainMenu : MonoBehaviour
         while (t < _fadeOutTime)
         {
             t += Time.deltaTime;
-            canvas.alpha = 1 - (t * 1/ _fadeOutTime);
+            canvas.alpha = 1 - (t * 1 / _fadeOutTime);
             yield return null;
         }
 
@@ -124,5 +134,38 @@ public class MainMenu : MonoBehaviour
 #else
             Application.Quit();
 #endif
+    }
+
+
+    /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    // Specific settings
+
+    private void ChangeScreenResolution(int idx)
+    {
+        var x = _resolutions[idx].text.Split(" ")[0];
+        var y = _resolutions[idx].text.Split(" ")[2];
+        Screen.SetResolution(Int32.Parse(x), Int32.Parse(y), FullScreenMode.ExclusiveFullScreen);
+    }
+
+
+    private void ChangeDisplayMode(int idx)
+    {
+        var d = _displayModes[idx].text;
+        if (d.Equals("FullScreenWindow"))
+        {
+            Screen.fullScreenMode = FullScreenMode.FullScreenWindow;
+        }
+        else if (d.Equals("ExclusiveFullScreen"))
+        {
+            Screen.fullScreenMode = FullScreenMode.ExclusiveFullScreen;
+        }
+        else if (d.Equals("MaximizedWindow"))
+        {
+            Screen.fullScreenMode = FullScreenMode.MaximizedWindow;
+        }
+        else if (d.Equals("Windowed"))
+        {
+            Screen.fullScreenMode = FullScreenMode.Windowed;
+        }
     }
 }

@@ -58,7 +58,7 @@ public class CentralMessageDisplay : MonoBehaviour
         yield return StartCoroutine(FadeOut(_centralMessageText));
         _centralMessageObject.SetActive(false);
 
-        _gameManager.GameStarted(); // tell _gameManger spawning animation is done
+        _gameManager.SpawnAnimationPlayed(); // tell _gameManger spawning animation is done
     }
 
     /* RESPAWNING */

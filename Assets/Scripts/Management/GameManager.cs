@@ -77,8 +77,6 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        // Player
-        SpawnPlayer(false);
         // Lifes
         _remainingLifes = _startingLifes;
     }
@@ -97,8 +95,15 @@ public class GameManager : MonoBehaviour
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
+    /* Used to tell game manager that start button got pressed. */
+    public void StartGame()
+    {
+        // Player
+        SpawnPlayer(false);
+    }
+
     /* Used to tell GameManger that game truely started (spawning animation is done) and they can start everything */
-    public void GameStarted()
+    public void SpawnAnimationPlayed()
     {
         // player can move and is alive
         _playerAlive = true;
