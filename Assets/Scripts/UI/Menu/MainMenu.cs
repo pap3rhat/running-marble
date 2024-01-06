@@ -24,6 +24,9 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private Slider _svSetting;
     [SerializeField] private TextMeshProUGUI _svSettingText;
 
+    // List of all images used for main menu buttons -> cannot be accessed via EventTrigger, because Unity does not allow for that..
+    [SerializeField] private List<Image> _images = new();
+
     // Settings Content
     private List<TMPro.TMP_Dropdown.OptionData> _resolutions = new();
     private List<TMPro.TMP_Dropdown.OptionData> _displayModes = new();
@@ -167,5 +170,20 @@ public class MainMenu : MonoBehaviour
         {
             Screen.fullScreenMode = FullScreenMode.Windowed;
         }
+    }
+
+    /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+    /* This needs to be two functions, cause Unity says so */
+    public void ChangeButtonBackgroundOpacityToOne(int idx)
+    {
+        var image = _images[idx];
+        image.color = new Color(image.color.r, image.color.g, image.color.b, 1);
+    }
+
+    public void ChangeButtonBackgroundOpacityToZero(int idx)
+    {
+        var image = _images[idx];
+        image.color = new Color(image.color.r, image.color.g, image.color.b, 0);
     }
 }
