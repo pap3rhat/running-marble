@@ -87,6 +87,13 @@ public class MainMenu : MonoBehaviour
     /* START */
     public void StartGame()
     {
+        StartCoroutine(WaitForClickAtStart());
+        
+    }
+
+    private IEnumerator WaitForClickAtStart()
+    {
+        yield return new WaitForSeconds(0.3f);
         _mainMenu.SetActive(false);
         _gameManager.StartGame();
     }
