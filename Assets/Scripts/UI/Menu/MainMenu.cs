@@ -12,6 +12,9 @@ public class MainMenu : MonoBehaviour
     // Main Menu
     [SerializeField] private GameObject _mainMenu;
 
+    // Pause Menu
+    [SerializeField] private GameObject _pauseMenu;
+
     // Settings UI Elements
     [SerializeField] private GameObject _settings;
     private CanvasGroup _settingsCanvas;
@@ -24,7 +27,7 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private Slider _svSetting;
     [SerializeField] private TextMeshProUGUI _svSettingText;
 
-    // List of all images used for main menu buttons -> cannot be accessed via EventTrigger, because Unity does not allow for that..
+    // List of all images used for main menu buttons and pause menu buttons -> cannot be accessed via EventTrigger, because Unity does not allow for that..
     [SerializeField] private List<Image> _images = new();
 
     // Settings Content
@@ -45,6 +48,10 @@ public class MainMenu : MonoBehaviour
 
     private void Start()
     {
+        // --- PAUSE MENU --
+        _pauseMenu.SetActive(false);
+
+        // --- SETTINGS ---
         _settingsCanvas = _settings.GetComponent<CanvasGroup>();
         _settingsCanvas.alpha = 0;
         _settings.SetActive(false);
