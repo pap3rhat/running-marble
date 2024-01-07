@@ -1,3 +1,4 @@
+using Cinemachine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -50,6 +51,7 @@ public class MainMenu : MonoBehaviour
     {
         // --- PAUSE MENU --
         _pauseMenu.SetActive(false);
+        _gameManager.Paused.AddListener(OnPaused);
 
         // --- SETTINGS ---
         _settingsCanvas = _settings.GetComponent<CanvasGroup>();
@@ -95,7 +97,7 @@ public class MainMenu : MonoBehaviour
     public void StartGame()
     {
         StartCoroutine(WaitForClickAtStart());
-        
+
     }
 
     private IEnumerator WaitForClickAtStart()
@@ -154,8 +156,25 @@ public class MainMenu : MonoBehaviour
     }
 
 
-    /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-    // Specific settings
+    /* PAUSE */
+    private void OnPaused(bool pause)
+    {
+        Time.timeScale = pause ? 0f : 1f;
+        _pauseMenu.SetActive(pause);
+    }
+
+    public void ContinueAfterPause()
+    {
+        StartCoroutine(WaitForCklickAfterContinueAfterPause());
+    }
+
+    private IEnumerator WaitForCklickAfterContinueAfterPause()
+    {
+        Time.timeScale = 1f;
+        yield return new WaitForSeconds(0.3f);
+        _gameManager.ContinueGame();
+    }
+    /*--- Specific settings -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
     private void ChangeScreenResolution(int idx)
     {
@@ -186,7 +205,7 @@ public class MainMenu : MonoBehaviour
         }
     }
 
-    /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*--- Make stuff better looking -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
     /* This needs to be two functions, cause Unity says so */
     public void ChangeButtonBackgroundOpacityToOne(int idx)

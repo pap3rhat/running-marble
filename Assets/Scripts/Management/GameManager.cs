@@ -15,10 +15,9 @@ public class GameManager : MonoBehaviour
     // Player information
     [SerializeField] private GameObject _playerPrefab;
     [SerializeField] private Vector3 _playerSpawnPosition;
-
     private GameObject _currentPlayerObject;
 
-    // Time Countdown
+    // Time
     private float _startTime;
     private float _timerLength = 600f;
     [HideInInspector] public UnityEvent<float> TimeLeft = new();
@@ -45,6 +44,10 @@ public class GameManager : MonoBehaviour
     // Time out -> Game Over
     [HideInInspector] public UnityEvent GameOver = new();
     public bool DeathHappened = false; // gets set by killtrigger
+    // Pause
+    private bool _isPaused = false;
+    private float _pauseStartTime = 0;
+    [HideInInspector] public UnityEvent<bool> Paused = new();
 
     // Instance
     private static GameManager _instance;
@@ -83,17 +86,28 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        if (!_playerAlive /*|| _playerWon*/)
+
+        // If player is not alive, nothing happens in here -> either animation is playing or player is in some menu
+        if (!_playerAlive)
         {
             return;
         }
 
-        CheckDeath();
-        CheckGameOver();
-        CountdownUpdate();
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Pause();
+        }
+
+        // Only check for stuff if the player is not in a menu
+        if (!_isPaused)
+        {
+            CheckDeath();
+            CheckGameOver();
+            CountdownUpdate();
+        }
     }
 
-    /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*--- METHODS OTHER CLASSES CALL -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
     /* Used to tell game manager that start button got pressed. */
     public void StartGame()
@@ -114,6 +128,11 @@ public class GameManager : MonoBehaviour
         _startTime = (float)Math.Round(Time.time, 2);
     }
 
+    /* Used to tell GameManager that the COntinue button in the pause menu got pressed */
+    public void ContinueGame()
+    {
+        Pause();
+    }
 
     /* 
      * Used to tell GameManger that Checkpoint got reached.
@@ -137,7 +156,31 @@ public class GameManager : MonoBehaviour
         _currentPlayerObject.transform.position = new Vector3(playerPosition.x, playerPosition.y, _playerSpawnPosition.z);
     }
 
-    /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*--- GAME LOOP -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+    /*
+     * Pauses game. Continues game.
+     */
+    private void Pause()
+    {
+        _isPaused = !_isPaused;
+        Paused.Invoke(_isPaused);
+        //if (_isPaused)
+        //{
+        //    // Player cannot move anymore
+        //    _inputManager.TriggerDisable();
+
+        //    // Do not count pause time as time player has played
+        //    _pauseStartTime = Time.time;
+        //}
+        //else
+        //{
+        //    // Player can move again
+        //    _inputManager.TriggerEnable();
+        //    // Correcting time
+        //    _startTime -= (_pauseStartTime - Time.time);
+        //}
+    }
 
     /*
      * Updates time counter.
@@ -182,7 +225,7 @@ public class GameManager : MonoBehaviour
      */
     private IEnumerator Respawn()
     {
-        // Do not count respawning time as time player has 
+        // Do not count respawning time as time player has played
         float respawnStartTime = Time.time;
 
         // Setting player to dead
@@ -211,7 +254,7 @@ public class GameManager : MonoBehaviour
 
             // Setting time back and displaying it again
             TimerDisplayed.Invoke(true);
-            // TODO: subtract stuff here
+            // Correcting time
             _startTime -= (respawnStartTime - Time.time);
 
             // player can move again

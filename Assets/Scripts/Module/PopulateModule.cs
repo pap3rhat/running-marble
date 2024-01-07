@@ -50,8 +50,6 @@ public class PopulateModule : MonoBehaviour
             _populatePlaces.Add(i, new List<(int, int)>());
         }
 
-        Debug.Log(objectAmount);
-
         // Adding new obsatcles as long as maximum amount of obstacle has not been reached or until no more obstacles can be placed due to space restrictions.
         // Space restrictions might lead to less obsatcles being placed that the given object amount, but that only happens when a lot of objects should be placed (like 70+) and at that point that's okay (it's my game, I can say that).
         while ((setObjects < objectAmount) && (_freeSpaces.Count != 0))

@@ -31,6 +31,8 @@ public class PlayerController : MonoBehaviour
         var cam = GameObject.Find("Main Camera");
         var vol = cam.GetComponent<Volume>();
         if (!vol.profile.TryGet(out _bloom)) throw new System.NullReferenceException(nameof(_bloom));
+
+        UniversalRenderPipelineUtils.SetRendererFeatureActive("SpeedLines", false);
     }
 
     private void Start()
@@ -63,6 +65,21 @@ public class PlayerController : MonoBehaviour
         {
             _playerRigidBody.AddForce(collison.relativeVelocity * _bouncerStrength, ForceMode.Impulse);
         }
+    }
+
+    private void OnDestroy()
+    {
+        UniversalRenderPipelineUtils.SetRendererFeatureActive("SpeedLines", false);
+    }
+
+    private void OnDisable()
+    {
+        UniversalRenderPipelineUtils.SetRendererFeatureActive("SpeedLines", false);
+    }
+
+    private void OnApplicationQuit()
+    {
+        UniversalRenderPipelineUtils.SetRendererFeatureActive("SpeedLines", false);
     }
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
