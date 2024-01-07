@@ -13,6 +13,7 @@ public class TimerDisplay : MonoBehaviour
     private void Awake()
     {
         _gameManager = GameManager.Instance;
+        _gameManager.BackToMain.AddListener(OnBackToMain);
         _gameManager.TimeLeft.AddListener(OnTimeLeft);
         _gameManager.TimerDisplayed.AddListener(display => _countdownObject.SetActive(display));
 
@@ -20,6 +21,12 @@ public class TimerDisplay : MonoBehaviour
     }
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+    /* BACK TO MAIN MENU */
+    private void OnBackToMain()
+    {
+        _countdownObject.SetActive(false);
+    }
 
     /*
      *  Handles displaying remaining time.

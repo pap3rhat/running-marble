@@ -10,6 +10,11 @@ using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
 {
+    // Camera -> used to position so it looks nicer
+    //[SerializeField] private GameObject _mainCamera;
+    private Vector3 _mainCameraPos = new Vector3(-1.7f, 7.85f, -150);
+    private Vector3 _mainCameraRot = new Vector3(45f, 0, 0);
+
     // Main Menu
     [SerializeField] private GameObject _mainMenu;
 
@@ -97,11 +102,11 @@ public class MainMenu : MonoBehaviour
     public void StartGame()
     {
         StartCoroutine(WaitForClickAtStart());
-
     }
 
     private IEnumerator WaitForClickAtStart()
     {
+        Time.timeScale = 1f;
         yield return new WaitForSeconds(0.3f);
         _mainMenu.SetActive(false);
         _gameManager.StartGame();
@@ -125,7 +130,7 @@ public class MainMenu : MonoBehaviour
         float t = 0;
         while (t < _fadeInTime)
         {
-            t += Time.deltaTime;
+            t += Time.unscaledDeltaTime;
             canvas.alpha = t * 1 / _fadeInTime;
             yield return null;
         }
@@ -136,7 +141,7 @@ public class MainMenu : MonoBehaviour
         float t = 0;
         while (t < _fadeOutTime)
         {
-            t += Time.deltaTime;
+            t += Time.unscaledDeltaTime;
             canvas.alpha = 1 - (t * 1 / _fadeOutTime);
             yield return null;
         }
@@ -172,8 +177,41 @@ public class MainMenu : MonoBehaviour
     {
         Time.timeScale = 1f;
         yield return new WaitForSeconds(0.3f);
-        _gameManager.ContinueGame();
+        _gameManager.ContinueGameFromPauseMenu();
     }
+
+    /* BACK TO MAIN MENU */
+    public void GoBackToMain()
+    {
+        _pauseMenu.SetActive(false);
+        _mainMenu.SetActive(true);
+        StartCoroutine(WaitForCklickAfterGoBackToMain());
+    }
+
+    private IEnumerator WaitForCklickAfterGoBackToMain()
+    {
+        Time.timeScale = 1f;
+        yield return new WaitForSeconds(0.3f);
+        Time.timeScale = 0f;
+        //PositionCamera();
+        _gameManager.GoBackToMainMenu();
+    }
+
+    /* CONTINUE FROM MAIN MENU */
+    public void ContinueGameFromMain()
+    {
+        StartCoroutine(WaitForCklickAfterContinueGameFromMain());
+    }
+
+    private IEnumerator WaitForCklickAfterContinueGameFromMain()
+    {
+        Time.timeScale = 1f;
+        yield return new WaitForSeconds(0.3f);
+        _mainMenu.SetActive(false);
+        _gameManager.ContinueGameFromSaveFile();
+    }
+
+
     /*--- Specific settings -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
     private void ChangeScreenResolution(int idx)
@@ -219,4 +257,13 @@ public class MainMenu : MonoBehaviour
         var image = _images[idx];
         image.color = new Color(image.color.r, image.color.g, image.color.b, 0);
     }
+
+    // TODO: fgure out why cinemachine does not allow this and camera is not getting repositioned.
+    /* Positioning camera. */
+    //private void PositionCamera()
+    //{
+    //    _mainCamera.transform.position = _mainCameraPos;
+    //    _mainCamera.transform.rotation = Quaternion.Euler(_mainCameraRot);
+    //}
+
 }

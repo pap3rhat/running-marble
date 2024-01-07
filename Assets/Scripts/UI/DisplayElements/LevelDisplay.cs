@@ -4,7 +4,7 @@ public class LevelDisplay : MonoBehaviour
 {
     private GameManager _gameManager;
 
-    // Level Display Text -> Never hidden
+    // Level Display Text -> Never hidden, because menu just appears above it and blocks it
     [SerializeField] private TextMeshProUGUI _levelText;
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/

@@ -18,6 +18,7 @@ public class CentralMessageDisplay : MonoBehaviour
     {
         _gameManager = GameManager.Instance;
 
+        _gameManager.BackToMain.AddListener(OnBackToMain);
         _gameManager.GameOver.AddListener(OnGameOver);
         _gameManager.StartCountdown.AddListener(StartDisplay);
         _gameManager.RespawnCountdown.AddListener(RespawnDisplay);
@@ -27,6 +28,12 @@ public class CentralMessageDisplay : MonoBehaviour
 
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+    /* BACK TO MAIN MENU */
+    private void OnBackToMain()
+    {
+        _centralMessageObject.SetActive(false);
+    }
 
     /* GAME OVER */
     private void OnGameOver()

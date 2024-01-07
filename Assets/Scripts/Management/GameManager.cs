@@ -1,10 +1,16 @@
 using Cinemachine;
 using System;
 using System.Collections;
+using System.IO;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 public class GameManager : MonoBehaviour
 {
+    // Saving system
+    private static string SAVE_PATH_GAME_INFORMATION;
+    private static string SAVE_PATH_HIGHSCORES;
+
     // Input Manager
     private InputManager _inputManager;
 
@@ -31,6 +37,7 @@ public class GameManager : MonoBehaviour
     private int _currentLevel = 1;
     [HideInInspector] public UnityEvent<int> LevelUpdate = new();
     private int _currentObjectAmount = 5;
+    private static int OBJECT_AMOUNT_PROGRESSION = 5;
     private PopulateModule _popMod;
 
     // Respawn
@@ -46,8 +53,10 @@ public class GameManager : MonoBehaviour
     public bool DeathHappened = false; // gets set by killtrigger
     // Pause
     private bool _isPaused = false;
-    private float _pauseStartTime = 0;
     [HideInInspector] public UnityEvent<bool> Paused = new();
+
+    // Went back to main menu
+    [HideInInspector] public UnityEvent BackToMain = new();
 
     // Instance
     private static GameManager _instance;
@@ -57,6 +66,9 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
+        // Save paths
+        SAVE_PATH_GAME_INFORMATION = Path.Combine(Application.persistentDataPath, "superDuperSaveFileForGameInformation.json");
+
         // Singelton
         if (_instance != null && _instance != this)
         {
@@ -86,8 +98,6 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-
-        // If player is not alive, nothing happens in here -> either animation is playing or player is in some menu
         if (!_playerAlive)
         {
             return;
@@ -107,7 +117,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    /*--- METHODS OTHER CLASSES CALL -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*--- METHODS OTHER CLASSES CALL (this should not be done like this, but oh well, that is how it is now) -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
     /* Used to tell game manager that start button got pressed. */
     public void StartGame()
@@ -128,10 +138,34 @@ public class GameManager : MonoBehaviour
         _startTime = (float)Math.Round(Time.time, 2);
     }
 
-    /* Used to tell GameManager that the COntinue button in the pause menu got pressed */
-    public void ContinueGame()
+    /* Used to tell GameManager that the Continue button in the pause menu got pressed */
+    public void ContinueGameFromPauseMenu()
     {
         Pause();
+    }
+
+    /* Used to tell GameManager that player went back to main menu after already being in game.*/
+    public void GoBackToMainMenu()
+    {
+        // Telling Game UI that main menu is there now and they have to go away
+        BackToMain.Invoke();
+
+        // Deleting scene
+        _popMod.DepopulatePrefabs();
+        // Destroying player
+        DestroyPlayer();
+
+        // Saving game information
+        SaveGameInformation();
+    }
+
+    /* Used to tell GameManager that player pressed continue in main menu. */
+    public void ContinueGameFromSaveFile()
+    {
+        LoadGameInformation();
+        _popMod.PopulateWithPrefab(_currentObjectAmount);
+        SpawnPlayer(false);
+        _isPaused = false;
     }
 
     /* 
@@ -148,7 +182,7 @@ public class GameManager : MonoBehaviour
         // Ereasing old level
         _popMod.DepopulatePrefabs();
         // Creating new level
-        _currentObjectAmount += 5;
+        _currentObjectAmount += OBJECT_AMOUNT_PROGRESSION;
         _popMod.PopulateWithPrefab(_currentObjectAmount);
 
         // Setting player back, but keeping x and y coordinate, so it is not as obvious
@@ -165,21 +199,6 @@ public class GameManager : MonoBehaviour
     {
         _isPaused = !_isPaused;
         Paused.Invoke(_isPaused);
-        //if (_isPaused)
-        //{
-        //    // Player cannot move anymore
-        //    _inputManager.TriggerDisable();
-
-        //    // Do not count pause time as time player has played
-        //    _pauseStartTime = Time.time;
-        //}
-        //else
-        //{
-        //    // Player can move again
-        //    _inputManager.TriggerEnable();
-        //    // Correcting time
-        //    _startTime -= (_pauseStartTime - Time.time);
-        //}
     }
 
     /*
@@ -295,5 +314,53 @@ public class GameManager : MonoBehaviour
     private void DestroyPlayer()
     {
         Destroy(_currentPlayerObject);
+    }
+
+    /*--- SAVING SYSTEM -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+    /* 
+     * Saves gameplay information into a file. 
+     * The following things get saved:
+     * Remaining lifes
+     * Remaining time
+     * Level Progression
+     * The following things DO NOT get saved:
+     * Exact postion and velocity of player within level.
+     * Level outline.
+     * When a player continues their game they will have as much time and as many lifes left as they stopped with. They will also be at the save level number, 
+     * but have to start the level from the beginning and the level will very much likely look different. (It would be way to tedious to save and load that kind of 
+     * information).
+     */
+    private void SaveGameInformation()
+    {
+        SerializedState serializedState = new SerializedState(_remainingLifes, _timerLength - (Time.time - _startTime), _currentLevel);
+        serializedState.Serialize();
+        File.WriteAllText(SAVE_PATH_GAME_INFORMATION, JsonUtility.ToJson(serializedState));
+    }
+
+    /*
+     * Loads information from game information save file.
+     * Deletes game information save file afterwards, so it only exists if player has something to continue with.
+     */
+    private void LoadGameInformation()
+    {
+        var json = File.ReadAllText(SAVE_PATH_GAME_INFORMATION);
+        var serializedState = new SerializedState();
+        JsonUtility.FromJsonOverwrite(json, serializedState);
+
+        _remainingLifes = serializedState.remainingLifes;
+        _startTime = Time.time - (_timerLength - serializedState.remainingTime);
+        _currentLevel = serializedState.currentLevel;
+        _currentObjectAmount = OBJECT_AMOUNT_PROGRESSION * _currentLevel;
+
+        // Update level and life display
+        LevelUpdate.Invoke(_currentLevel);
+        // TODO 
+        for (int i = _remainingLifes; i < _startingLifes; i++)
+        {
+            PlayerDied.Invoke(_startingLifes, _startingLifes - i);
+        }
+
+        File.Delete(SAVE_PATH_GAME_INFORMATION);
     }
 }
