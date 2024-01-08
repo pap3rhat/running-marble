@@ -8,8 +8,8 @@ using UnityEngine.Events;
 public class GameManager : MonoBehaviour
 {
     // Saving system
-    private static string SAVE_PATH_GAME_INFORMATION;
-    private static string SAVE_PATH_HIGHSCORES;
+    public string SAVE_PATH_GAME_INFORMATION;
+    public string SAVE_PATH_HIGHSCORES;
 
     // Input Manager
     private InputManager _inputManager;
@@ -25,13 +25,14 @@ public class GameManager : MonoBehaviour
 
     // Time
     private float _startTime;
-    private float _timerLength = 600f;
+    private static float TIMER_LENGTH = 600f;
     [HideInInspector] public UnityEvent<float> TimeLeft = new();
     [HideInInspector] public UnityEvent<bool> TimerDisplayed = new();
 
     // Lifes
-    private int _startingLifes = 3;
+    private static int STARTING_LIFES = 3;
     private int _remainingLifes;
+    [HideInInspector] public UnityEvent ResetLifeDisplay = new();
 
     // Level Progression
     private int _currentLevel = 1;
@@ -93,7 +94,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         // Lifes
-        _remainingLifes = _startingLifes;
+        _remainingLifes = STARTING_LIFES;
     }
 
     void Update()
@@ -117,11 +118,27 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void OnApplicationQuit()
+    {
+        // TODO: only save when ther eis something to save and user did not end by playing game til end
+
+        // Saving game information if user closes application 
+        SaveGameInformation();
+    }
+
     /*--- METHODS OTHER CLASSES CALL (this should not be done like this, but oh well, that is how it is now) -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-    /* Used to tell game manager that start button got pressed. */
-    public void StartGame()
+    /* Used to tell game manager that new game button got pressed. */
+    public void StartNewGame()
     {
+        // Setting everything to default -> need when starting new game while a also having already played a game in the same session
+        _remainingLifes = STARTING_LIFES;
+        ResetLifeDisplay.Invoke();
+        _startTime = Time.time;
+        _currentLevel = 1;
+        LevelUpdate.Invoke(_currentLevel);
+        _currentObjectAmount = OBJECT_AMOUNT_PROGRESSION;
+
         // Player
         SpawnPlayer(false);
     }
@@ -206,7 +223,7 @@ public class GameManager : MonoBehaviour
      */
     private void CountdownUpdate()
     {
-        TimeLeft.Invoke((float)Math.Round(_timerLength - Time.time + _startTime, 2));
+        TimeLeft.Invoke((float)Math.Round(TIMER_LENGTH - Time.time + _startTime, 2));
     }
 
     /*
@@ -215,7 +232,7 @@ public class GameManager : MonoBehaviour
     private void CheckGameOver()
     {
         // Time ran out or no more lifes left
-        if (Time.time - _startTime >= _timerLength || _remainingLifes == 0)
+        if (Time.time - _startTime >= TIMER_LENGTH || _remainingLifes == 0)
         {
             // just clear everything
             GameOver.Invoke();
@@ -249,7 +266,7 @@ public class GameManager : MonoBehaviour
 
         // Setting player to dead
         _playerAlive = false;
-        PlayerDied.Invoke(_startingLifes, _remainingLifes);
+        PlayerDied.Invoke(STARTING_LIFES, _remainingLifes);
         _remainingLifes--;
         DestroyPlayer();
 
@@ -291,6 +308,9 @@ public class GameManager : MonoBehaviour
 
         // Player cannot move at beginning
         _inputManager.TriggerDisable();
+        // Player set to dead
+        _playerAlive = false;
+
 
         // Camera set up
         _stateCamera.Follow = _currentPlayerObject.transform;
@@ -333,7 +353,7 @@ public class GameManager : MonoBehaviour
      */
     private void SaveGameInformation()
     {
-        SerializedState serializedState = new SerializedState(_remainingLifes, _timerLength - (Time.time - _startTime), _currentLevel);
+        SerializedState serializedState = new SerializedState(_remainingLifes, TIMER_LENGTH - (Time.time - _startTime), _currentLevel);
         serializedState.Serialize();
         File.WriteAllText(SAVE_PATH_GAME_INFORMATION, JsonUtility.ToJson(serializedState));
     }
@@ -349,16 +369,15 @@ public class GameManager : MonoBehaviour
         JsonUtility.FromJsonOverwrite(json, serializedState);
 
         _remainingLifes = serializedState.remainingLifes;
-        _startTime = Time.time - (_timerLength - serializedState.remainingTime);
+        _startTime = Time.time - (TIMER_LENGTH - serializedState.remainingTime);
         _currentLevel = serializedState.currentLevel;
         _currentObjectAmount = OBJECT_AMOUNT_PROGRESSION * _currentLevel;
 
         // Update level and life display
         LevelUpdate.Invoke(_currentLevel);
-        // TODO 
-        for (int i = _remainingLifes; i < _startingLifes; i++)
+        for (int i = _remainingLifes; i < STARTING_LIFES; i++)
         {
-            PlayerDied.Invoke(_startingLifes, _startingLifes - i);
+            PlayerDied.Invoke(STARTING_LIFES, i+1);
         }
 
         File.Delete(SAVE_PATH_GAME_INFORMATION);

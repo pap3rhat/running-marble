@@ -9,6 +9,7 @@ public class LifeDisplay : MonoBehaviour
     [SerializeField] private GameObject _lifeDisplay;
     [SerializeField] private List<GameObject> _lifesIcons;
     [SerializeField] private Sprite _deadLifeIcon;
+    [SerializeField] private Sprite _aliveLifeIcon;
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
@@ -21,6 +22,7 @@ public class LifeDisplay : MonoBehaviour
     void Start()
     {
         _gameManager.BackToMain.AddListener(OnBackToMain);
+        _gameManager.ResetLifeDisplay.AddListener(OnResetLifeDisplay);
         _gameManager.PlayerDied.AddListener(OnPlayerDied);
         _gameManager.StartCountdown.AddListener(() => _lifeDisplay.SetActive(true));
     }
@@ -38,6 +40,18 @@ public class LifeDisplay : MonoBehaviour
      */
     private void OnPlayerDied(int startingLifes, int remainingLifes)
     {
+        Debug.Log(startingLifes - remainingLifes);
         _lifesIcons[startingLifes - remainingLifes].GetComponent<Image>().sprite = _deadLifeIcon;
+    }
+
+    /*
+     * Resets all lifes to be on again.
+     */
+    private void OnResetLifeDisplay()
+    {
+        foreach (var icon in _lifesIcons)
+        {
+            icon.GetComponent<Image>().sprite = _aliveLifeIcon;
+        }
     }
 }

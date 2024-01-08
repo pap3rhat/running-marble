@@ -2,6 +2,7 @@ using Cinemachine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -17,6 +18,7 @@ public class MainMenu : MonoBehaviour
 
     // Main Menu
     [SerializeField] private GameObject _mainMenu;
+    [SerializeField] private GameObject _continueBtn;
 
     // Pause Menu
     [SerializeField] private GameObject _pauseMenu;
@@ -50,6 +52,8 @@ public class MainMenu : MonoBehaviour
     private void Awake()
     {
         _gameManager = GameManager.Instance;
+        // Showing or not showing continue button depending on whether a game to continue exists
+        _continueBtn.SetActive(File.Exists(_gameManager.SAVE_PATH_GAME_INFORMATION));
     }
 
     private void Start()
@@ -109,7 +113,7 @@ public class MainMenu : MonoBehaviour
         Time.timeScale = 1f;
         yield return new WaitForSeconds(0.3f);
         _mainMenu.SetActive(false);
-        _gameManager.StartGame();
+        _gameManager.StartNewGame();
     }
 
     /* SETTINGS PANEL */
@@ -195,6 +199,8 @@ public class MainMenu : MonoBehaviour
         Time.timeScale = 0f;
         //PositionCamera();
         _gameManager.GoBackToMainMenu();
+        // Showing or not showing continue button depending on whether a game to continue exists
+        _continueBtn.SetActive(File.Exists(_gameManager.SAVE_PATH_GAME_INFORMATION));
     }
 
     /* CONTINUE FROM MAIN MENU */

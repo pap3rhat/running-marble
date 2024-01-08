@@ -708,6 +708,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d74daf7cf7bdd34b8fffd86d1a6821b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SAVE_PATH_GAME_INFORMATION: 
+  SAVE_PATH_HIGHSCORES: 
   _stateCamera: {fileID: 1925357826827174891}
   _animator: {fileID: 8456192661630509299}
   _playerPrefab: {fileID: 2643174350721090374, guid: 8a9c68eb7739daa438546fe2ed957e4b,
@@ -717,6 +719,9 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   TimerDisplayed:
+    m_PersistentCalls:
+      m_Calls: []
+  ResetLifeDisplay:
     m_PersistentCalls:
       m_Calls: []
   LevelUpdate:
@@ -3181,6 +3186,7 @@ MonoBehaviour:
   - {fileID: 2038402042}
   - {fileID: 1290338824}
   _deadLifeIcon: {fileID: 21300000, guid: d0273f8d7edc726478b3899548bd0f32, type: 3}
+  _aliveLifeIcon: {fileID: 21300000, guid: f09e2706d49d9e74e9b8f04144035fdd, type: 3}
 --- !u!114 &1184522122
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3772,6 +3778,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _mainMenu: {fileID: 1758430164}
+  _continueBtn: {fileID: 5739699197068382691}
   _pauseMenu: {fileID: 336415195}
   _settings: {fileID: 8185556006224868727}
   _srSetting: {fileID: 6199361101051724605}
@@ -5053,7 +5060,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: START
+  m_text: NEW GAME
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: 79459efec17a4d00a321bdcc27bbc385, type: 2}
@@ -8704,7 +8711,7 @@ MonoBehaviour:
     m_HighlightedColor: {r: 1, g: 1, b: 1, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 0}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
