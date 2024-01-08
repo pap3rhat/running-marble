@@ -23,6 +23,9 @@ public class MainMenu : MonoBehaviour
     // Pause Menu
     [SerializeField] private GameObject _pauseMenu;
 
+    // Game Over Menu
+    [SerializeField] private GameObject _gameOverMenu;
+
     // Settings UI Elements
     [SerializeField] private GameObject _settings;
     private CanvasGroup _settingsCanvas;
@@ -58,6 +61,9 @@ public class MainMenu : MonoBehaviour
 
     private void Start()
     {
+        // --- GAME OVER MENU ---
+        _gameOverMenu.SetActive(false);
+
         // --- PAUSE MENU --
         _pauseMenu.SetActive(false);
         _gameManager.Paused.AddListener(OnPaused);
@@ -188,6 +194,7 @@ public class MainMenu : MonoBehaviour
     public void GoBackToMain()
     {
         _pauseMenu.SetActive(false);
+        _gameOverMenu.SetActive(false);
         _mainMenu.SetActive(true);
         StartCoroutine(WaitForCklickAfterGoBackToMain());
     }

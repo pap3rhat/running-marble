@@ -120,10 +120,13 @@ public class GameManager : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        // TODO: only save when ther eis something to save and user did not end by playing game til end
 
-        // Saving game information if user closes application 
-        SaveGameInformation();
+        // TODO: check if this truely only saves when player is still playing
+        // Saving game information if user closes application and is still in play
+        if (_remainingLifes > 0 && Time.time - _startTime < TIMER_LENGTH)
+        {
+            SaveGameInformation();
+        }
     }
 
     /*--- METHODS OTHER CLASSES CALL (this should not be done like this, but oh well, that is how it is now) -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -172,8 +175,11 @@ public class GameManager : MonoBehaviour
         // Destroying player
         DestroyPlayer();
 
-        // Saving game information
-        SaveGameInformation();
+        // Saving game information if user came out of unfinished game
+        if (_remainingLifes > 0 && Time.time - _startTime < TIMER_LENGTH)
+        {
+            SaveGameInformation();
+        }
     }
 
     /* Used to tell GameManager that player pressed continue in main menu. */
@@ -377,7 +383,7 @@ public class GameManager : MonoBehaviour
         LevelUpdate.Invoke(_currentLevel);
         for (int i = _remainingLifes; i < STARTING_LIFES; i++)
         {
-            PlayerDied.Invoke(STARTING_LIFES, i+1);
+            PlayerDied.Invoke(STARTING_LIFES, i + 1);
         }
 
         File.Delete(SAVE_PATH_GAME_INFORMATION);
