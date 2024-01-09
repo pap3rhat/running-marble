@@ -273,7 +273,7 @@ public class MenuUI : MonoBehaviour
 
         // Populating highscore view
         // TODO: use sorted highscores here
-        var highscores = _gameManager.HighscoreData.Highscores;
+        var highscores = _gameManager.HighscoreData.Highscores.OrderByDescending(i => i.Score).ToList();
         for (int i = 0; i < highscores.Count; i++)
         {
             GameObject entry;
