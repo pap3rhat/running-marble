@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour
     public string SAVE_PATH_GAME_INFORMATION;
     public string SAVE_PATH_HIGHSCORES;
     public SerializedHighscores HighscoreData;
+    private bool _highscoreSubmitted = false;
 
     // Input Manager
     private InputManager _inputManager;
@@ -26,7 +27,7 @@ public class GameManager : MonoBehaviour
 
     // Time
     private float _startTime;
-    private static float TIMER_LENGTH = 600f;
+    private static float TIMER_LENGTH = 60f;
     [HideInInspector] public UnityEvent<float> TimeLeft = new();
     [HideInInspector] public UnityEvent<bool> TimerDisplayed = new();
 
@@ -133,6 +134,7 @@ public class GameManager : MonoBehaviour
     /*--- METHODS OTHER CLASSES CALL (this should not be done like this, but oh well, that is how it is now) -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
     // I NEED A SIGNAL BUS ASAP, UI IS RUINING MY LIFE (AND CODE)
     // AND A SEPERATE CALSS TO SAVE STUFF; AHAHAHRHUJHHW
+    // STUFF SHOULD BE PLANNED AND NOT GROW "DYNAMICALLY" FM
 
     /* Used to tell game manager that new game button got pressed. */
     public void StartNewGame()
@@ -144,6 +146,7 @@ public class GameManager : MonoBehaviour
         _currentLevel = 1;
         LevelUpdate.Invoke(_currentLevel);
         _currentObjectAmount = OBJECT_AMOUNT_PROGRESSION;
+        _highscoreSubmitted = false;
 
         // Setting up first level up
         _popMod = GameObject.Find("Base Module").GetComponentInChildren<PopulateModule>();
@@ -196,13 +199,18 @@ public class GameManager : MonoBehaviour
         _popMod.PopulateWithPrefab(_currentObjectAmount);
         SpawnPlayer(false);
         _isPaused = false;
+        _highscoreSubmitted = false;
     }
 
 
     /* Used to tell GameManager that highscore got submitted */
     public void SaveHighscore(string name)
     {
-        SaveHighscoreInformation(name);
+        if (!_highscoreSubmitted)
+        {
+            SaveHighscoreInformation(name);
+            _highscoreSubmitted = true;
+        }     
     }
 
     /* 
@@ -418,7 +426,7 @@ public class GameManager : MonoBehaviour
 
         }
 
-        HighscoreData.Highscores.Add(new Highscore(5, name));
+        HighscoreData.Highscores.Add(new Highscore(_currentLevel, name));
         HighscoreData.Serialize();
         // Overwritting old file
         File.WriteAllText(SAVE_PATH_HIGHSCORES, JsonUtility.ToJson(HighscoreData));

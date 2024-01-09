@@ -27,9 +27,19 @@ public class MenuUI : MonoBehaviour
     [SerializeField] private GameObject _gameOverMenu;
     [SerializeField] private TMP_InputField _nameInput;
     private string _highscoreName;
+    private int _score;
+    [SerializeField] private TMP_Text _finalScoreText;
+
+    // Highscore Menu
+    [SerializeField] private GameObject _highscorePanel;
+    private CanvasGroup _highscoreCanvas;
+    [SerializeField] private GameObject _highscoreEntryContainer;
+    // Using two different prefabs, so Image components do not have be accessed everytime as well
+    [SerializeField] private GameObject _highscoreEntraDarkPrefab;
+    [SerializeField] private GameObject _highscoreEntraLightPrefab;
 
     // Settings UI Elements
-    [SerializeField] private GameObject _settings;
+    [SerializeField] private GameObject _settingsPanel;
     private CanvasGroup _settingsCanvas;
     [SerializeField] private TMP_Dropdown _srSetting;
     [SerializeField] private TMP_Dropdown _dmSetting;
@@ -67,15 +77,21 @@ public class MenuUI : MonoBehaviour
         _gameOverMenu.SetActive(false);
         _gameManager.GameOver.AddListener(OnGameOver);
         _nameInput.onValueChanged.AddListener(value => _highscoreName = value);
+        _gameManager.LevelUpdate.AddListener(value => _score = value);
 
         // --- PAUSE MENU --
         _pauseMenu.SetActive(false);
         _gameManager.Paused.AddListener(OnPaused);
 
+        // --- HIGHSCORES ---
+        _highscoreCanvas = _highscorePanel.GetComponent<CanvasGroup>();
+        _highscoreCanvas.alpha = 0;
+        _highscorePanel.SetActive(false);
+
         // --- SETTINGS ---
-        _settingsCanvas = _settings.GetComponent<CanvasGroup>();
+        _settingsCanvas = _settingsPanel.GetComponent<CanvasGroup>();
         _settingsCanvas.alpha = 0;
-        _settings.SetActive(false);
+        _settingsPanel.SetActive(false);
 
         _resolutions = Screen.resolutions.Select(r => new TMP_Dropdown.OptionData(r.ToString().Split("@")[0])).ToList();
         // TODO: figure out why that is not working
@@ -129,13 +145,13 @@ public class MenuUI : MonoBehaviour
     /* SETTINGS PANEL */
     public void AccessSettings()
     {
-        _settings.SetActive(true);
+        _settingsPanel.SetActive(true);
         StartCoroutine(FadeIn(_settingsCanvas));
     }
 
     public void CloseSettings()
     {
-        StartCoroutine(FadeOut(_settingsCanvas, _settings));
+        StartCoroutine(FadeOut(_settingsCanvas, _settingsPanel));
     }
 
     /* FADE FUNCTIONS */
@@ -234,6 +250,7 @@ public class MenuUI : MonoBehaviour
         Time.timeScale = 0;
         _mainMenu.SetActive(false);
         _pauseMenu.SetActive(false);
+        _finalScoreText.text = "Your score: " + _score.ToString();
         _gameOverMenu.SetActive(true);
     }
 
@@ -242,6 +259,56 @@ public class MenuUI : MonoBehaviour
     public void SubmitHighscore()
     {
         _gameManager.SaveHighscore(_highscoreName);
+        // TODO open highscore page
+    }
+
+    public void AccessHighscore()
+    {
+        // Depopulating highcore view from before -> otherwise just inserting a new element is hard
+        foreach (Transform child in _highscoreEntryContainer.transform)
+        {
+            GameObject.Destroy(child.gameObject);
+        }
+
+
+        // Populating highscore view
+        // TODO: use sorted highscores here
+        var highscores = _gameManager.HighscoreData.Highscores;
+        for (int i = 0; i < highscores.Count; i++)
+        {
+            GameObject entry;
+            if (i % 2 == 0)
+            {
+                entry = Instantiate(_highscoreEntraDarkPrefab);
+            }
+            else
+            {
+                entry = Instantiate(_highscoreEntraLightPrefab);
+            }
+            entry.transform.SetParent(_highscoreEntryContainer.transform);
+            foreach (var text in entry.GetComponentsInChildren<TMP_Text>())
+            {
+                if (text.gameObject.name.Equals("Highscore Entry Name"))
+                {
+                    text.text = highscores[i].Name;
+                }
+                else
+                {
+                    text.text = highscores[i].Score.ToString();
+                }
+            };
+
+        }
+
+        // Making menu visible
+        _highscorePanel.SetActive(true);
+        StartCoroutine(FadeIn(_highscoreCanvas));
+    }
+
+    public void CloseHighscore()
+    {
+        // Making menu invisible
+       StartCoroutine(FadeOut(_highscoreCanvas, _highscorePanel));
     }
 
     /*--- Specific settings -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
