@@ -21,26 +21,20 @@ public class LifeDisplay : MonoBehaviour
 
     void Start()
     {
-        _gameManager.BackToMain.AddListener(OnBackToMain);
+        _gameManager.BackToMain.AddListener(() => _lifeDisplay.SetActive(false));
         _gameManager.ResetLifeDisplay.AddListener(OnResetLifeDisplay);
         _gameManager.PlayerDied.AddListener(OnPlayerDied);
+        _gameManager.GameOver.AddListener(() => _lifeDisplay.SetActive(false));
         _gameManager.StartCountdown.AddListener(() => _lifeDisplay.SetActive(true));
     }
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-
-    /* BACK TO MAIN MENU */
-    private void OnBackToMain()
-    {
-        _lifeDisplay.SetActive(false);
-    }
 
     /*
      * Handles life display when player dies.
      */
     private void OnPlayerDied(int startingLifes, int remainingLifes)
     {
-        Debug.Log(startingLifes - remainingLifes);
         _lifesIcons[startingLifes - remainingLifes].GetComponent<Image>().sprite = _deadLifeIcon;
     }
 

@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
     // Saving system
     public string SAVE_PATH_GAME_INFORMATION;
     public string SAVE_PATH_HIGHSCORES;
+    public SerializedHighscores HighscoreData;
 
     // Input Manager
     private InputManager _inputManager;
@@ -69,6 +70,7 @@ public class GameManager : MonoBehaviour
     {
         // Save paths
         SAVE_PATH_GAME_INFORMATION = Path.Combine(Application.persistentDataPath, "superDuperSaveFileForGameInformation.json");
+        SAVE_PATH_HIGHSCORES = Path.Combine(Application.persistentDataPath, "superDuperSaveFileForHighscores.json");
 
         // Singelton
         if (_instance != null && _instance != this)
@@ -83,12 +85,11 @@ public class GameManager : MonoBehaviour
         // Getting inputmanager, so controls can be disabled or enabled by gamemanager
         _inputManager = InputManager.Instance;
 
-        // Setting up first level up
-        _popMod = GameObject.Find("Base Module").GetComponentInChildren<PopulateModule>();
-        _popMod.PopulateWithPrefab(_currentObjectAmount);
-
         // Activating fog, to enhance illusion of endlessness
         RenderSettings.fog = true;
+
+        // Loading Highscores
+        LoadHighscoreInformation();
     }
 
     void Start()
@@ -130,6 +131,8 @@ public class GameManager : MonoBehaviour
     }
 
     /*--- METHODS OTHER CLASSES CALL (this should not be done like this, but oh well, that is how it is now) -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    // I NEED A SIGNAL BUS ASAP, UI IS RUINING MY LIFE (AND CODE)
+    // AND A SEPERATE CALSS TO SAVE STUFF; AHAHAHRHUJHHW
 
     /* Used to tell game manager that new game button got pressed. */
     public void StartNewGame()
@@ -141,6 +144,10 @@ public class GameManager : MonoBehaviour
         _currentLevel = 1;
         LevelUpdate.Invoke(_currentLevel);
         _currentObjectAmount = OBJECT_AMOUNT_PROGRESSION;
+
+        // Setting up first level up
+        _popMod = GameObject.Find("Base Module").GetComponentInChildren<PopulateModule>();
+        _popMod.PopulateWithPrefab(_currentObjectAmount);
 
         // Player
         SpawnPlayer(false);
@@ -189,6 +196,13 @@ public class GameManager : MonoBehaviour
         _popMod.PopulateWithPrefab(_currentObjectAmount);
         SpawnPlayer(false);
         _isPaused = false;
+    }
+
+
+    /* Used to tell GameManager that highscore got submitted */
+    public void SaveHighscore(string name)
+    {
+        SaveHighscoreInformation(name);
     }
 
     /* 
@@ -240,11 +254,16 @@ public class GameManager : MonoBehaviour
         // Time ran out or no more lifes left
         if (Time.time - _startTime >= TIMER_LENGTH || _remainingLifes == 0)
         {
-            // just clear everything
+            // just clear everything in UI that is not Game Over Menu
             GameOver.Invoke();
             // Setting player to dead, and disallowing themto move
             _playerAlive = false;
             _inputManager.TriggerDisable();
+
+            // Deleting scene
+            _popMod.DepopulatePrefabs();
+            // Destroying player
+            DestroyPlayer();
         }
     }
 
@@ -361,12 +380,12 @@ public class GameManager : MonoBehaviour
     {
         SerializedState serializedState = new SerializedState(_remainingLifes, TIMER_LENGTH - (Time.time - _startTime), _currentLevel);
         serializedState.Serialize();
+        // Overwritting old file
         File.WriteAllText(SAVE_PATH_GAME_INFORMATION, JsonUtility.ToJson(serializedState));
     }
 
     /*
      * Loads information from game information save file.
-     * Deletes game information save file afterwards, so it only exists if player has something to continue with.
      */
     private void LoadGameInformation()
     {
@@ -385,7 +404,35 @@ public class GameManager : MonoBehaviour
         {
             PlayerDied.Invoke(STARTING_LIFES, i + 1);
         }
+    }
 
-        File.Delete(SAVE_PATH_GAME_INFORMATION);
+
+    /*
+     * Saves highscore information.
+     */
+    private void SaveHighscoreInformation(string name)
+    {
+        if (HighscoreData == null)
+        {
+            HighscoreData = new SerializedHighscores();
+
+        }
+
+        HighscoreData.Highscores.Add(new Highscore(5, name));
+        HighscoreData.Serialize();
+        // Overwritting old file
+        File.WriteAllText(SAVE_PATH_HIGHSCORES, JsonUtility.ToJson(HighscoreData));
+    }
+
+    private void LoadHighscoreInformation()
+    {
+        if (File.Exists(SAVE_PATH_HIGHSCORES))
+        {
+            var json = File.ReadAllText(SAVE_PATH_HIGHSCORES);
+            HighscoreData = new SerializedHighscores();
+            JsonUtility.FromJsonOverwrite(json, HighscoreData);
+        }
+
     }
 }
+

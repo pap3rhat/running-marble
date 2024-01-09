@@ -9,7 +9,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class MainMenu : MonoBehaviour
+public class MenuUI : MonoBehaviour
 {
     // Camera -> used to position so it looks nicer
     //[SerializeField] private GameObject _mainCamera;
@@ -25,6 +25,8 @@ public class MainMenu : MonoBehaviour
 
     // Game Over Menu
     [SerializeField] private GameObject _gameOverMenu;
+    [SerializeField] private TMP_InputField _nameInput;
+    private string _highscoreName;
 
     // Settings UI Elements
     [SerializeField] private GameObject _settings;
@@ -63,6 +65,8 @@ public class MainMenu : MonoBehaviour
     {
         // --- GAME OVER MENU ---
         _gameOverMenu.SetActive(false);
+        _gameManager.GameOver.AddListener(OnGameOver);
+        _nameInput.onValueChanged.AddListener(value => _highscoreName = value);
 
         // --- PAUSE MENU --
         _pauseMenu.SetActive(false);
@@ -224,6 +228,21 @@ public class MainMenu : MonoBehaviour
         _gameManager.ContinueGameFromSaveFile();
     }
 
+    /* GAME OVER */
+    private void OnGameOver()
+    {
+        Time.timeScale = 0;
+        _mainMenu.SetActive(false);
+        _pauseMenu.SetActive(false);
+        _gameOverMenu.SetActive(true);
+    }
+
+
+    /* HIGHSCORE */
+    public void SubmitHighscore()
+    {
+        _gameManager.SaveHighscore(_highscoreName);
+    }
 
     /*--- Specific settings -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 

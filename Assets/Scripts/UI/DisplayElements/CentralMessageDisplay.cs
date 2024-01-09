@@ -10,7 +10,6 @@ public class CentralMessageDisplay : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _centralMessageText;
 
     private string _diedText = "You Died!";
-    private string _gameOverText = "Game Over!";
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
@@ -19,7 +18,6 @@ public class CentralMessageDisplay : MonoBehaviour
         _gameManager = GameManager.Instance;
 
         _gameManager.BackToMain.AddListener(OnBackToMain);
-        _gameManager.GameOver.AddListener(OnGameOver);
         _gameManager.StartCountdown.AddListener(StartDisplay);
         _gameManager.RespawnCountdown.AddListener(RespawnDisplay);
         _gameManager.RespawnMessageTime = 6f; // setting how long respawning text takes to be displayed
@@ -33,14 +31,6 @@ public class CentralMessageDisplay : MonoBehaviour
     private void OnBackToMain()
     {
         _centralMessageObject.SetActive(false);
-    }
-
-    /* GAME OVER */
-    private void OnGameOver()
-    {
-        _centralMessageText.alpha = 1;
-        _centralMessageText.text = _gameOverText;
-        _centralMessageObject.SetActive(true);
     }
 
     /* SPAWNING */
