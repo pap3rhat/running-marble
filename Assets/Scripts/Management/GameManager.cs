@@ -281,7 +281,7 @@ public class GameManager : MonoBehaviour
     private void CheckDeath()
     {
         // Player died
-        if (DeathHappened)
+        if (DeathHappened || _currentPlayerObject.transform.position.y < -5f)
         {
             StartCoroutine(Respawn());
             DeathHappened = false;

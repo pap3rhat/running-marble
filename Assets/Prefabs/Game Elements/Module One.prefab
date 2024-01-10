@@ -96,6 +96,7 @@ GameObject:
   - component: {fileID: 5867346810816821137}
   - component: {fileID: 6884575449526847316}
   - component: {fileID: 5129703048132461068}
+  - component: {fileID: 3123930753174870533}
   m_Layer: 0
   m_Name: Obstacle Section
   m_TagString: Untagged
@@ -180,6 +181,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 890981539e7a17548b83d825ecdbc068, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &3123930753174870533
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1711672298701508842}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d326dddede4bcd459747d505418f1e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   _prefabs:
   - {fileID: 8804744568990751659, guid: 57376795a5f557049aea6759f6955f8f, type: 3}
   - {fileID: 7873432064453455477, guid: ebc8eae6ff4802c4384d7a3b75486139, type: 3}
@@ -187,7 +200,6 @@ MonoBehaviour:
   - {fileID: 4957504171580714047, guid: dd18c22a7f4173e45a0ce20ddf0837a4, type: 3}
   - {fileID: 4840370819633027370, guid: 1c9e3c61e1a984b4099e1684ee55ca09, type: 3}
   - {fileID: 443899940303793423, guid: b72e5fdf383851840a22a7413b0b614d, type: 3}
-  _sampleTexture: {fileID: 2800000, guid: 6f7b32e52aad684498d5ccbbf4dd7678, type: 3}
 --- !u!1 &2989852600652500343
 GameObject:
   m_ObjectHideFlags: 0

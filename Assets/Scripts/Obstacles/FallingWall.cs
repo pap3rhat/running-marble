@@ -7,7 +7,7 @@ public class FallingWall : MonoBehaviour
     private float _fallTime = 0.5f;
     private float _getUpTime = 3f;
     private float _passedTime = 0f;
-    private bool _falling = true;
+    private bool _falling = false;
 
     [SerializeField] private Transform _posOneTransform;
     [SerializeField] private Transform _posTwoTransform;
