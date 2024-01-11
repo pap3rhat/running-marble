@@ -1,4 +1,3 @@
-using Cinemachine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,11 +5,18 @@ using System.IO;
 using System.Linq;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine.Audio;
 using UnityEngine.UI;
 
 public class MenuUI : MonoBehaviour
 {
+    // AudioMixer
+    [SerializeField] private AudioMixer _audioMixer;
+    private const string MIXER_MENU_BACKGROUND_MUSIC = "MenuBackground";
+    private const string MIXER_GAME_BACKGROUND_MUSIC = "GameBackground";
+    private const string MIXER_SFX = "SFX";
+    private bool _menuPlaying = true;
+
     // Camera -> used to position so it looks nicer
     //[SerializeField] private GameObject _mainCamera;
     private Vector3 _mainCameraPos = new Vector3(-1.7f, 7.85f, -150);
@@ -116,13 +122,16 @@ public class MenuUI : MonoBehaviour
         _mvSetting.maxValue = 100;
         _mvSetting.wholeNumbers = true;
         _mvSetting.onValueChanged.AddListener(value => _mvSettingText.text = value.ToString());
+        _mvSetting.onValueChanged.AddListener(SetBackgroundmusicVolume);
         _mvSetting.value = 50;
+
 
 
         _svSetting.minValue = 0;
         _svSetting.maxValue = 100;
         _svSetting.wholeNumbers = true;
         _svSetting.onValueChanged.AddListener(value => _svSettingText.text = value.ToString());
+        _svSetting.onValueChanged.AddListener(SetSFXVolume);
         _svSetting.value = 50;
     }
 
@@ -140,6 +149,7 @@ public class MenuUI : MonoBehaviour
         yield return new WaitForSeconds(0.3f);
         _mainMenu.SetActive(false);
         _gameManager.StartNewGame();
+        SwitchBackgroundMusicTracks();
     }
 
     /* SETTINGS PANEL */
@@ -196,6 +206,7 @@ public class MenuUI : MonoBehaviour
     {
         Time.timeScale = pause ? 0f : 1f;
         _pauseMenu.SetActive(pause);
+        SwitchBackgroundMusicTracks();
     }
 
     public void ContinueAfterPause()
@@ -242,6 +253,7 @@ public class MenuUI : MonoBehaviour
         yield return new WaitForSeconds(0.3f);
         _mainMenu.SetActive(false);
         _gameManager.ContinueGameFromSaveFile();
+        SwitchBackgroundMusicTracks();
     }
 
     /* GAME OVER */
@@ -252,14 +264,17 @@ public class MenuUI : MonoBehaviour
         _pauseMenu.SetActive(false);
         _finalScoreText.text = "Your score: " + _score.ToString();
         _gameOverMenu.SetActive(true);
+        SwitchBackgroundMusicTracks();
     }
 
 
     /* HIGHSCORE */
     public void SubmitHighscore()
     {
+        // Save highscore
         _gameManager.SaveHighscore(_highscoreName);
-        // TODO open highscore page
+        // Open highscore page
+        AccessHighscore();
     }
 
     public void AccessHighscore()
@@ -308,7 +323,7 @@ public class MenuUI : MonoBehaviour
     public void CloseHighscore()
     {
         // Making menu invisible
-       StartCoroutine(FadeOut(_highscoreCanvas, _highscorePanel));
+        StartCoroutine(FadeOut(_highscoreCanvas, _highscorePanel));
     }
 
     /*--- Specific settings -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -319,8 +334,6 @@ public class MenuUI : MonoBehaviour
         var y = _resolutions[idx].text.Split(" ")[2];
         Screen.SetResolution(Int32.Parse(x), Int32.Parse(y), FullScreenMode.ExclusiveFullScreen);
     }
-
-
     private void ChangeDisplayMode(int idx)
     {
         var d = _displayModes[idx].text;
@@ -340,6 +353,44 @@ public class MenuUI : MonoBehaviour
         {
             Screen.fullScreenMode = FullScreenMode.Windowed;
         }
+    }
+
+    private void SetBackgroundmusicVolume(float value)
+    {
+        var val = value==0 ?  0.001f : value/100;
+        if (_menuPlaying)
+        {
+            _audioMixer.SetFloat(MIXER_MENU_BACKGROUND_MUSIC, Mathf.Log10(val) * 20);
+        }
+        else
+        {
+            _audioMixer.SetFloat(MIXER_GAME_BACKGROUND_MUSIC, Mathf.Log10(val) * 20);
+        }
+    }
+
+    private void SwitchBackgroundMusicTracks()
+    {
+        if (_menuPlaying)
+        {
+            float currentBackgroundVolume;
+            _audioMixer.GetFloat(MIXER_MENU_BACKGROUND_MUSIC, out currentBackgroundVolume);
+            StartCoroutine(FadeMixerGroup.StartFade(_audioMixer, MIXER_MENU_BACKGROUND_MUSIC, 1f, -80));
+            StartCoroutine(FadeMixerGroup.StartFade(_audioMixer, MIXER_GAME_BACKGROUND_MUSIC, 1f, currentBackgroundVolume));
+        }
+        else
+        {
+            float currentBackgroundVolume;
+            _audioMixer.GetFloat(MIXER_GAME_BACKGROUND_MUSIC, out currentBackgroundVolume);
+            StartCoroutine(FadeMixerGroup.StartFade(_audioMixer, MIXER_GAME_BACKGROUND_MUSIC, 1f, -80));
+            StartCoroutine(FadeMixerGroup.StartFade(_audioMixer, MIXER_MENU_BACKGROUND_MUSIC, 1f, currentBackgroundVolume));
+        }
+        _menuPlaying = !_menuPlaying;
+    }
+
+    private void SetSFXVolume(float value)
+    {
+        var val = value == 0 ? 0.001f : value / 100;
+        _audioMixer.SetFloat(MIXER_SFX, Mathf.Log10(val) * 20);
     }
 
     /*--- Make stuff better looking -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/

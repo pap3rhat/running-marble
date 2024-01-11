@@ -91,6 +91,9 @@ public class GameManager : MonoBehaviour
 
         // Loading Highscores
         LoadHighscoreInformation();
+
+        // Access to populate class
+        _popMod = GameObject.Find("Base Module").GetComponentInChildren<PopulateModule>();
     }
 
     void Start()
@@ -149,7 +152,6 @@ public class GameManager : MonoBehaviour
         _highscoreSubmitted = false;
 
         // Setting up first level up
-        _popMod = GameObject.Find("Base Module").GetComponentInChildren<PopulateModule>();
         _popMod.PopulateWithPrefab(_currentObjectAmount);
 
         // Player
@@ -412,6 +414,9 @@ public class GameManager : MonoBehaviour
         {
             PlayerDied.Invoke(STARTING_LIFES, i + 1);
         }
+
+        // Deleting file, no use for it anymore
+        File.Delete(SAVE_PATH_GAME_INFORMATION);
     }
 
 
