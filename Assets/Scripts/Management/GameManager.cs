@@ -30,7 +30,7 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
 
     // Lifes
     private static int STARTING_LIFES = 3;
-    private int _remainingLifes;
+    public int RemainingLifes; 
 
     // Level Progression
     private int _currentLevel = 1;
@@ -40,10 +40,9 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
 
     // Respawn
     private bool _playerAlive = false;
-    [HideInInspector] public float RespawnMessageTime; // used to control how long respawning message is shown; gets set be RespawingDisplay UI class, because that one control coroutine
+    [HideInInspector] public float RespawnMessageTime; // used to control how long respawning message is shown; gets set be CentralMessageDisplay UI class, because that one control coroutine
+    [HideInInspector] public float SpawnMessageTime; // used to control how much time needs to subtracted when starting from save file, set by CentralMEssageDisplay class
 
-    // Time out -> Game Over
-    public bool DeathHappened = false; // gets set by killtrigger
     // Pause
     private bool _isPaused = false;
 
@@ -96,7 +95,7 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
     void Start()
     {
         // Lifes
-        _remainingLifes = STARTING_LIFES;
+        RemainingLifes = STARTING_LIFES;
     }
 
     void Update()
@@ -130,7 +129,7 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
 
         // TODO: check if this truely only saves when player is still playing
         // Saving game information if user closes application and is still in play
-        if (_remainingLifes > 0 && Time.time - _startTime < TimerLength)
+        if (RemainingLifes > 0 && Time.time - _startTime < TimerLength)
         {
             SaveGameInformation();
         }
@@ -157,13 +156,6 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
         SignalBus.Unsubscribe<SaveHighscoreSignal>(this);
     }
 
-    /*--- METHODS OTHER CLASSES CALL (this should not be done like this, but oh well, that is how it is now) -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-    // I NEED A SIGNAL BUS ASAP, UI IS RUINING MY LIFE (AND CODE)
-    // AND A SEPERATE CALSS TO SAVE STUFF; AHAHAHRHUJHHW
-    // STUFF SHOULD BE PLANNED AND NOT GROW "DYNAMICALLY" FM
-
-
-
     /*--- GAME LOOP -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
     /*
@@ -173,7 +165,6 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
     {
         // just clear everything in UI that is not Game Over Menu
         SignalBus.Fire(new GameOverSignal());
-        SignalBus.Fire(new GameUIOffSignal());
         // Setting player to dead, and disallowing themto move
         _playerAlive = false;
         _inputManager.TriggerDisable();
@@ -196,20 +187,20 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
 
         // Setting player to dead
         _playerAlive = false;
-        _remainingLifes--;
+        RemainingLifes--;
         DestroyPlayer();
 
         // Player cannot move anymore
         _inputManager.TriggerDisable();
 
         // Use next life if possible
-        if (_remainingLifes > 0)
+        if (RemainingLifes > 0)
         {
             // Respawning player
             SpawnPlayer();
 
             // Wait for respawn message to have been fully displayed
-            yield return new WaitForSeconds(RespawnMessageTime);
+            yield return new WaitForSecondsRealtime(RespawnMessageTime);
 
             // Setting player to be alive again
             _playerAlive = true;
@@ -252,7 +243,10 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
      */
     private void DestroyPlayer()
     {
-        Destroy(_currentPlayerObject);
+        if (_currentPlayerObject)
+        {
+            Destroy(_currentPlayerObject);
+        }
     }
 
     /*--- SAVING SYSTEM FOR GAME INFORMATION -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -272,7 +266,8 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
      */
     private void SaveGameInformation()
     {
-        SerializedState serializedState = new SerializedState(_remainingLifes, TimerLength - (Time.time - _startTime), _currentLevel);
+        // The time added is to compensate for the time waited until the button click sound is played (not the smartest, I know)
+        SerializedState serializedState = new SerializedState(RemainingLifes, TimerLength - (Time.time - _startTime) + 0.3f, _currentLevel);
         serializedState.Serialize();
         // Overwritting old file
         File.WriteAllText(SAVE_PATH_GAME_INFORMATION, JsonUtility.ToJson(serializedState));
@@ -287,17 +282,19 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
         var serializedState = new SerializedState();
         JsonUtility.FromJsonOverwrite(json, serializedState);
 
-        _remainingLifes = serializedState.remainingLifes;
+        RemainingLifes = serializedState.remainingLifes;
         _startTime = Time.time - (TimerLength - serializedState.remainingTime);
         _currentLevel = serializedState.currentLevel;
         _currentObjectAmount = OBJECT_AMOUNT_PROGRESSION * _currentLevel;
 
-        // Update level and life display
+        // Update level, time and life display
         SignalBus.Fire(new LevelUpdateSignal { Level = _currentLevel });
-        for (int i = _remainingLifes; i < STARTING_LIFES; i++)
+        Debug.Log(RemainingLifes);
+        for (int i = RemainingLifes; i < STARTING_LIFES; i++)
         {
-            SignalBus.Fire(new PlayerDiedSignal());
+            SignalBus.Fire(new SpecificLifeSignal { index = STARTING_LIFES - i - 1 });
         }
+        SignalBus.Fire(new RemainingTimeSignal { RemainingTime = (float)Math.Round(TimerLength - Time.time + _startTime, 2) });
 
         // Deleting file, no use for it anymore
         File.Delete(SAVE_PATH_GAME_INFORMATION);
@@ -332,7 +329,7 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
 
     }
 
-    /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*--- REACTING TO EVENTS -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
     /*
      * A new game has been started.
@@ -340,12 +337,13 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
     public void OnEventHappen(NewGameSignal e)
     {
         // Setting everything to default -> need when starting new game while a also having already played a game in the same session
-        _remainingLifes = STARTING_LIFES;
+        RemainingLifes = STARTING_LIFES;
         _startTime = Time.time;
         _currentLevel = 1;
         SignalBus.Fire(new LevelUpdateSignal { Level = _currentLevel });
         _currentObjectAmount = OBJECT_AMOUNT_PROGRESSION;
         _highscoreSubmitted = false;
+        SignalBus.Fire(new RemainingTimeSignal { RemainingTime = (float)Math.Round(TimerLength - Time.time + _startTime, 2) });
 
         // Setting up first level up
         _popMod.PopulateWithPrefab(_currentObjectAmount);
@@ -393,9 +391,6 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
 
         // No pause
         _isPaused = false;
-
-        // Countdown
-        _startTime = (float)Math.Round(Time.time, 2);
     }
 
     /*
@@ -403,16 +398,13 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
      */
     public void OnEventHappen(BackToMainMenuSignal e)
     {
-        // Telling Game UI that main menu is there now and they have to go away
-        SignalBus.Fire(new GameUIOffSignal());
-
         // Deleting scene
         _popMod.DepopulatePrefabs();
         // Destroying player
         DestroyPlayer();
 
         // Saving game information if user came out of unfinished game
-        if (_remainingLifes > 0 && Time.time - _startTime < TimerLength)
+        if (RemainingLifes > 0 && Time.time - _startTime < TimerLength)
         {
             SaveGameInformation();
         }

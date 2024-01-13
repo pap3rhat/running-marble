@@ -2,7 +2,7 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 
-public class CentralMessageDisplay : MonoBehaviour, ISubscriber<GameUIOffSignal>, ISubscriber<NewGameSignal>, ISubscriber<ContinueFromSaveFileSignal>, ISubscriber<PlayerDiedSignal>
+public class CentralMessageDisplay : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscriber<ContinueFromSaveFileSignal>, ISubscriber<PlayerDiedSignal>, ISubscriber<GameOverSignal>
 {
     private GameManager _gameManager;
 
@@ -17,30 +17,46 @@ public class CentralMessageDisplay : MonoBehaviour, ISubscriber<GameUIOffSignal>
     {
         _gameManager = GameManager.Instance;
 
-        SignalBus.Subscribe<GameUIOffSignal>(this);
         SignalBus.Subscribe<NewGameSignal>(this);
         SignalBus.Subscribe<ContinueFromSaveFileSignal>(this);
         SignalBus.Subscribe<PlayerDiedSignal>(this);
+        SignalBus.Subscribe<GameOverSignal>(this);
         _gameManager.RespawnMessageTime = 6f; // setting how long respawning text takes to be displayed
-        _centralMessageObject.SetActive(false);
+        _gameManager.SpawnMessageTime = 5f; // setting how long text takes to be displayed
+
+        TurnOff();
     }
 
     private void OnDestroy()
     {
-        SignalBus.Unsubscribe<GameUIOffSignal>(this);
         SignalBus.Unsubscribe<NewGameSignal>(this);
         SignalBus.Unsubscribe<ContinueFromSaveFileSignal>(this);
         SignalBus.Unsubscribe<PlayerDiedSignal>(this);
+        SignalBus.Unsubscribe<GameOverSignal>(this);
     }
 
     private void OnApplicationQuit()
     {
-        SignalBus.Unsubscribe<GameUIOffSignal>(this);
         SignalBus.Unsubscribe<NewGameSignal>(this);
         SignalBus.Unsubscribe<ContinueFromSaveFileSignal>(this);
         SignalBus.Unsubscribe<PlayerDiedSignal>(this);
+        SignalBus.Unsubscribe<GameOverSignal>(this);
     }
 
+    /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+    private void TurnOff()
+    {
+        _centralMessageObject.SetActive(false);
+        StopAllCoroutines();
+        Time.timeScale = 1f;
+    }
+
+    private void TurnOn()
+    {
+        Time.timeScale = 0f;
+        _centralMessageObject.SetActive(true);
+    }
 
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -53,7 +69,7 @@ public class CentralMessageDisplay : MonoBehaviour, ISubscriber<GameUIOffSignal>
 
     private IEnumerator DisplayStart()
     {
-        _centralMessageObject.SetActive(true);
+        TurnOn();
         _centralMessageText.alpha = 1;
         _centralMessageText.SetText("Starting in...");
         yield return StartCoroutine(FadeOut(_centralMessageText));
@@ -65,7 +81,7 @@ public class CentralMessageDisplay : MonoBehaviour, ISubscriber<GameUIOffSignal>
         yield return StartCoroutine(FadeOut(_centralMessageText));
         _centralMessageText.SetText("GO!");
         yield return StartCoroutine(FadeOut(_centralMessageText));
-        _centralMessageObject.SetActive(false);
+        TurnOff();
 
         SignalBus.Fire(new StartSignal());
     }
@@ -79,10 +95,10 @@ public class CentralMessageDisplay : MonoBehaviour, ISubscriber<GameUIOffSignal>
     private IEnumerator DisplayRespawn()
     {
         // You died message
-        _centralMessageObject.SetActive(true);
+        TurnOn();
         _centralMessageText.alpha = 1;
         _centralMessageText.text = _diedText;
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSecondsRealtime(1);
 
         // starting respawn messages 
         _centralMessageText.SetText("Respawning...");
@@ -95,7 +111,7 @@ public class CentralMessageDisplay : MonoBehaviour, ISubscriber<GameUIOffSignal>
         yield return StartCoroutine(FadeOut(_centralMessageText));
         _centralMessageText.SetText("GO!");
         yield return StartCoroutine(FadeOut(_centralMessageText));
-        _centralMessageObject.SetActive(false);
+        TurnOff();
     }
 
 
@@ -109,19 +125,13 @@ public class CentralMessageDisplay : MonoBehaviour, ISubscriber<GameUIOffSignal>
         float t = 0;
         while (t <= 1)
         {
-            t += Time.deltaTime;
+            t += Time.unscaledDeltaTime;
             text.alpha = 1 - t;
             yield return null;
         }
     }
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-
-    public void OnEventHappen(GameUIOffSignal e)
-    {
-        _centralMessageObject.SetActive(false);
-        StopAllCoroutines();
-    }
 
     public void OnEventHappen(NewGameSignal e)
     {
@@ -135,6 +145,15 @@ public class CentralMessageDisplay : MonoBehaviour, ISubscriber<GameUIOffSignal>
 
     public void OnEventHappen(PlayerDiedSignal e)
     {
-        RespawnDisplay();
+        if (e.RespawnSequence)
+        {
+            RespawnDisplay();
+        } 
+    }
+
+    public void OnEventHappen(GameOverSignal e)
+    {
+        _centralMessageObject.SetActive(false);
+        StopAllCoroutines();
     }
 }

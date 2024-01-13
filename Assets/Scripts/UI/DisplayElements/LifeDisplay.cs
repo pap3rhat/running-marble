@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class LifeDisplay : MonoBehaviour, ISubscriber<GameUIOffSignal>, ISubscriber<NewGameSignal>, ISubscriber<PlayerDiedSignal>
+public class LifeDisplay : MonoBehaviour,ISubscriber<NewGameSignal>, ISubscriber<PlayerDiedSignal>, ISubscriber<BackToMainMenuSignal>, ISubscriber<GameOverSignal>, ISubscriber<SpecificLifeSignal>
 {
     [SerializeField] private GameObject _lifeDisplay;
     [SerializeField] private List<GameObject> _lifesIcons;
@@ -15,36 +15,49 @@ public class LifeDisplay : MonoBehaviour, ISubscriber<GameUIOffSignal>, ISubscri
 
     private void Awake()
     {
-        _lifeDisplay.SetActive(false);
+        TurnOff();
     }
 
     void Start()
     {
         SignalBus.Subscribe<PlayerDiedSignal>(this);
-        SignalBus.Subscribe<GameUIOffSignal>(this);
         SignalBus.Subscribe<NewGameSignal>(this);
+        SignalBus.Subscribe<BackToMainMenuSignal>(this);
+        SignalBus.Subscribe<GameOverSignal>(this);
+        SignalBus.Subscribe<SpecificLifeSignal>(this);
     }
 
     private void OnDestroy()
     {
-        SignalBus.Unsubscribe<GameUIOffSignal>(this);
         SignalBus.Unsubscribe<NewGameSignal>(this);
         SignalBus.Unsubscribe<PlayerDiedSignal>(this);
+        SignalBus.Unsubscribe<BackToMainMenuSignal>(this);
+        SignalBus.Unsubscribe<GameOverSignal>(this);
+        SignalBus.Unsubscribe<SpecificLifeSignal>(this);
     }
 
     private void OnApplicationQuit()
     {
-        SignalBus.Unsubscribe<GameUIOffSignal>(this);
         SignalBus.Unsubscribe<NewGameSignal>(this);
         SignalBus.Unsubscribe<PlayerDiedSignal>(this);
+        SignalBus.Unsubscribe<BackToMainMenuSignal>(this);
+        SignalBus.Unsubscribe<GameOverSignal>(this);
+        SignalBus.Unsubscribe<SpecificLifeSignal>(this);
     }
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-    public void OnEventHappen(GameUIOffSignal e)
+    private void TurnOff()
     {
         _lifeDisplay.SetActive(false);
     }
+
+    private void TurnOn()
+    {
+        _lifeDisplay.SetActive(true);
+    }
+
+    /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
     public void OnEventHappen(NewGameSignal e)
     {
@@ -62,5 +75,22 @@ public class LifeDisplay : MonoBehaviour, ISubscriber<GameUIOffSignal>, ISubscri
         _dark++;
     }
 
-    // TODO when game from continue -> reset dark to 0, bzw use save system to call set up method -> better
+    public void OnEventHappen(BackToMainMenuSignal e)
+    {
+        _dark = 0;
+        TurnOff();
+    }
+
+    public void OnEventHappen(GameOverSignal e)
+    {
+        _dark = 0;
+        TurnOff();
+    }
+
+    public void OnEventHappen(SpecificLifeSignal e)
+    {
+        _lifesIcons[e.index].GetComponent<Image>().sprite = _deadLifeIcon;
+        _dark++;
+        TurnOn();
+    }
 }

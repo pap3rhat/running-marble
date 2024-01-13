@@ -1281,8 +1281,9 @@ MonoBehaviour:
     type: 3}
   _playerSpawnPosition: {x: 0, y: 6, z: -145}
   TimerLength: 60
+  RemainingLifes: 0
   RespawnMessageTime: 0
-  DeathHappened: 0
+  SpawnMessageTime: 0
 --- !u!4 &219741801
 Transform:
   m_ObjectHideFlags: 0
@@ -16185,13 +16186,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 826a2535ae4e6ce42ae05c74b8537ad1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_vcamOwner: {fileID: 4519301338502756786}
-  _inputManager: {fileID: 0}
-  _startingRotation: {x: 0, y: 0, z: 0}
-  _horizontalClampAngle: 360
-  _verticalClampAngle: 45
-  _horizontalSpeed: 10
-  _verticalSpeed: 10
 --- !u!1 &6780600434311942480
 GameObject:
   m_ObjectHideFlags: 3

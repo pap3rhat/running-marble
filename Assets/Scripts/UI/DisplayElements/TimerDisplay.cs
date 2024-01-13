@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-public class TimerDisplay : MonoBehaviour, ISubscriber<GameUIOffSignal>, ISubscriber<RemainingTimeSignal>
+public class TimerDisplay : MonoBehaviour, ISubscriber<RemainingTimeSignal>, ISubscriber<BackToMainMenuSignal>, ISubscriber<ContinueFromSaveFileSignal>, ISubscriber<GameOverSignal>, ISubscriber<NewGameSignal>
 {
     private GameManager _gameManager;
 
@@ -14,31 +14,75 @@ public class TimerDisplay : MonoBehaviour, ISubscriber<GameUIOffSignal>, ISubscr
     {
         _gameManager = GameManager.Instance;
 
-        SignalBus.Subscribe<GameUIOffSignal>(this);
         SignalBus.Subscribe<RemainingTimeSignal>(this);
+        SignalBus.Subscribe<BackToMainMenuSignal>(this);
+        SignalBus.Subscribe<ContinueFromSaveFileSignal>(this);
+        SignalBus.Subscribe<GameOverSignal>(this);
+        SignalBus.Subscribe<NewGameSignal>(this);
+
         _countdownText.text = $"{_gameManager.TimerLength:00.00}";
+
+        TurnOff();
     }
 
     private void OnDestroy()
     {
-        SignalBus.Unsubscribe<GameUIOffSignal>(this);
         SignalBus.Unsubscribe<RemainingTimeSignal>(this);
+        SignalBus.Unsubscribe<BackToMainMenuSignal>(this);
+        SignalBus.Unsubscribe<ContinueFromSaveFileSignal>(this);
+        SignalBus.Unsubscribe<GameOverSignal>(this);
+        SignalBus.Unsubscribe<NewGameSignal>(this);
     }
 
     private void OnApplicationQuit()
     {
-        SignalBus.Unsubscribe<GameUIOffSignal>(this);
         SignalBus.Unsubscribe<RemainingTimeSignal>(this);
+        SignalBus.Unsubscribe<BackToMainMenuSignal>(this);
+        SignalBus.Unsubscribe<ContinueFromSaveFileSignal>(this);
+        SignalBus.Unsubscribe<GameOverSignal>(this);
+        SignalBus.Unsubscribe<NewGameSignal>(this);
     }
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-    public void OnEventHappen(GameUIOffSignal e)
+
+    private void TurnOff()
     {
         _countdownObject.SetActive(false);
     }
 
+    private void TurnOn()
+    {
+        _countdownObject.SetActive(true);
+    }
+
+    /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
     public void OnEventHappen(RemainingTimeSignal e)
     {
         _countdownText.text = $"{e.RemainingTime:00.00}";
+    }
+
+    public void OnEventHappen(BackToMainMenuSignal e)
+    {
+        Debug.Log($"Back to main: {_countdownText.text}");
+        TurnOff();
+    }
+
+    public void OnEventHappen(ContinueFromSaveFileSignal e)
+    {
+        Debug.Log($"Continue save file: {_countdownText.text}");
+        TurnOn();
+    }
+
+    public void OnEventHappen(GameOverSignal e)
+    {
+        Debug.Log($"Game over: {_countdownText.text}");
+        TurnOff();
+    }
+
+    public void OnEventHappen(NewGameSignal e)
+    {
+        Debug.Log($"New game: {_countdownText.text}");
+        TurnOn();
     }
 }
