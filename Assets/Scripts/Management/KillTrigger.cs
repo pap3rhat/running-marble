@@ -4,17 +4,8 @@ using UnityEngine;
 
 public class KillTrigger : MonoBehaviour
 {
-    // Connection to Manager
-    private GameManager _gameManager;
 
     private string _playerObjName = "Player";
-
-    /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-
-    private void Start()
-    {
-        _gameManager = GameManager.Instance;
-    }
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
@@ -22,7 +13,7 @@ public class KillTrigger : MonoBehaviour
     {
         if (other.gameObject.name.Contains(_playerObjName))
         {
-            _gameManager.DeathHappened = true;
+            SignalBus.Fire(new PlayerDiedSignal());
         }
     }
 }

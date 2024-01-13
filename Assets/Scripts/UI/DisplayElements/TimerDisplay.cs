@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-public class TimerDisplay : MonoBehaviour
+public class TimerDisplay : MonoBehaviour, ISubscriber<GameUIOffSignal>, ISubscriber<RemainingTimeSignal>
 {
     private GameManager _gameManager;
 
@@ -13,21 +13,32 @@ public class TimerDisplay : MonoBehaviour
     private void Awake()
     {
         _gameManager = GameManager.Instance;
-        _gameManager.BackToMain.AddListener(() => _countdownObject.SetActive(false));
-        _gameManager.TimeLeft.AddListener(OnTimeLeft);
-        _gameManager.GameOver.AddListener(() => _countdownObject.SetActive(false));
-        _gameManager.TimerDisplayed.AddListener(display => _countdownObject.SetActive(display));
 
-        _countdownObject.SetActive(false);
+        SignalBus.Subscribe<GameUIOffSignal>(this);
+        SignalBus.Subscribe<RemainingTimeSignal>(this);
+        _countdownText.text = $"{_gameManager.TimerLength:00.00}";
+    }
+
+    private void OnDestroy()
+    {
+        SignalBus.Unsubscribe<GameUIOffSignal>(this);
+        SignalBus.Unsubscribe<RemainingTimeSignal>(this);
+    }
+
+    private void OnApplicationQuit()
+    {
+        SignalBus.Unsubscribe<GameUIOffSignal>(this);
+        SignalBus.Unsubscribe<RemainingTimeSignal>(this);
     }
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-
-    /*
-     *  Handles displaying remaining time.
-     */
-    private void OnTimeLeft(float time)
+    public void OnEventHappen(GameUIOffSignal e)
     {
-        _countdownText.text = $"{time:00.00}";
+        _countdownObject.SetActive(false);
+    }
+
+    public void OnEventHappen(RemainingTimeSignal e)
+    {
+        _countdownText.text = $"{e.RemainingTime:00.00}";
     }
 }

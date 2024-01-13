@@ -4,8 +4,7 @@ using System.Collections;
 using System.IO;
 using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Events;
-public class GameManager : MonoBehaviour
+public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscriber<PlayerDiedSignal>, ISubscriber<ContinueFromSaveFileSignal>, ISubscriber<PauseSignal>, ISubscriber<StartSignal>, ISubscriber<BackToMainMenuSignal>, ISubscriber<SaveHighscoreSignal>, ISubscriber<CheckpointSignal>
 {
     // Saving system
     public string SAVE_PATH_GAME_INFORMATION;
@@ -27,39 +26,26 @@ public class GameManager : MonoBehaviour
 
     // Time
     private float _startTime;
-    private static float TIMER_LENGTH = 60f;
-    [HideInInspector] public UnityEvent<float> TimeLeft = new();
-    [HideInInspector] public UnityEvent<bool> TimerDisplayed = new();
+    public float TimerLength = 60f;
 
     // Lifes
     private static int STARTING_LIFES = 3;
     private int _remainingLifes;
-    [HideInInspector] public UnityEvent ResetLifeDisplay = new();
 
     // Level Progression
     private int _currentLevel = 1;
-    [HideInInspector] public UnityEvent<int> LevelUpdate = new();
     private int _currentObjectAmount = 5;
     private static int OBJECT_AMOUNT_PROGRESSION = 5;
     private PopulateModule _popMod;
 
     // Respawn
     private bool _playerAlive = false;
-    [HideInInspector] public UnityEvent<int, int> PlayerDied = new();
-    [HideInInspector] public UnityEvent RespawnCountdown = new();
     [HideInInspector] public float RespawnMessageTime; // used to control how long respawning message is shown; gets set be RespawingDisplay UI class, because that one control coroutine
 
-    // Start 
-    [HideInInspector] public UnityEvent StartCountdown = new();
     // Time out -> Game Over
-    [HideInInspector] public UnityEvent GameOver = new();
     public bool DeathHappened = false; // gets set by killtrigger
     // Pause
     private bool _isPaused = false;
-    [HideInInspector] public UnityEvent<bool> Paused = new();
-
-    // Went back to main menu
-    [HideInInspector] public UnityEvent BackToMain = new();
 
     // Instance
     private static GameManager _instance;
@@ -86,6 +72,17 @@ public class GameManager : MonoBehaviour
         // Getting inputmanager, so controls can be disabled or enabled by gamemanager
         _inputManager = InputManager.Instance;
 
+
+        // Subscribing to events
+        SignalBus.Subscribe<NewGameSignal>(this);
+        SignalBus.Subscribe<PlayerDiedSignal>(this);
+        SignalBus.Subscribe<ContinueFromSaveFileSignal>(this);
+        SignalBus.Subscribe<PauseSignal>(this);
+        SignalBus.Subscribe<StartSignal>(this);
+        SignalBus.Subscribe<BackToMainMenuSignal>(this);
+        SignalBus.Subscribe<SaveHighscoreSignal>(this);
+        SignalBus.Subscribe<CheckpointSignal>(this);
+
         // Activating fog, to enhance illusion of endlessness
         RenderSettings.fog = true;
 
@@ -109,17 +106,22 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        // Pause
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            Pause();
+            SignalBus.Fire(new PauseSignal { IsPaused = !_isPaused });
         }
 
-        // Only check for stuff if the player is not in a menu
+        // Only update time if game is not paused
         if (!_isPaused)
         {
-            CheckDeath();
-            CheckGameOver();
-            CountdownUpdate();
+            // If no time is left, game is over
+            if (Time.time - _startTime >= TimerLength)
+            {
+                GameIsOver();
+            }
+            // Updating Countdown
+            SignalBus.Fire(new RemainingTimeSignal { RemainingTime = (float)Math.Round(TimerLength - Time.time + _startTime, 2) });
         }
     }
 
@@ -128,10 +130,31 @@ public class GameManager : MonoBehaviour
 
         // TODO: check if this truely only saves when player is still playing
         // Saving game information if user closes application and is still in play
-        if (_remainingLifes > 0 && Time.time - _startTime < TIMER_LENGTH)
+        if (_remainingLifes > 0 && Time.time - _startTime < TimerLength)
         {
             SaveGameInformation();
         }
+
+        SignalBus.Unsubscribe<NewGameSignal>(this);
+        SignalBus.Subscribe<PlayerDiedSignal>(this);
+        SignalBus.Unsubscribe<ContinueFromSaveFileSignal>(this);
+        SignalBus.Unsubscribe<PauseSignal>(this);
+        SignalBus.Unsubscribe<StartSignal>(this);
+        SignalBus.Unsubscribe<BackToMainMenuSignal>(this);
+        SignalBus.Unsubscribe<SaveHighscoreSignal>(this);
+        SignalBus.Unsubscribe<SaveHighscoreSignal>(this);
+    }
+
+    private void OnDestroy()
+    {
+        SignalBus.Unsubscribe<NewGameSignal>(this);
+        SignalBus.Subscribe<PlayerDiedSignal>(this);
+        SignalBus.Unsubscribe<ContinueFromSaveFileSignal>(this);
+        SignalBus.Unsubscribe<PauseSignal>(this);
+        SignalBus.Unsubscribe<StartSignal>(this);
+        SignalBus.Unsubscribe<BackToMainMenuSignal>(this);
+        SignalBus.Unsubscribe<SaveHighscoreSignal>(this);
+        SignalBus.Unsubscribe<SaveHighscoreSignal>(this);
     }
 
     /*--- METHODS OTHER CLASSES CALL (this should not be done like this, but oh well, that is how it is now) -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -139,156 +162,28 @@ public class GameManager : MonoBehaviour
     // AND A SEPERATE CALSS TO SAVE STUFF; AHAHAHRHUJHHW
     // STUFF SHOULD BE PLANNED AND NOT GROW "DYNAMICALLY" FM
 
-    /* Used to tell game manager that new game button got pressed. */
-    public void StartNewGame()
+
+
+    /*--- GAME LOOP -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+    /*
+     * Cleans up everything after game is over.
+     */
+    private void GameIsOver()
     {
-        // Setting everything to default -> need when starting new game while a also having already played a game in the same session
-        _remainingLifes = STARTING_LIFES;
-        ResetLifeDisplay.Invoke();
-        _startTime = Time.time;
-        _currentLevel = 1;
-        LevelUpdate.Invoke(_currentLevel);
-        _currentObjectAmount = OBJECT_AMOUNT_PROGRESSION;
-        _highscoreSubmitted = false;
-
-        // Setting up first level up
-        _popMod.PopulateWithPrefab(_currentObjectAmount);
-
-        // Player
-        SpawnPlayer(false);
-    }
-
-    /* Used to tell GameManger that game truely started (spawning animation is done) and they can start everything */
-    public void SpawnAnimationPlayed()
-    {
-        // player can move and is alive
-        _playerAlive = true;
-        _inputManager.TriggerEnable();
-
-        // Countdown
-        TimerDisplayed.Invoke(true);
-        _startTime = (float)Math.Round(Time.time, 2);
-    }
-
-    /* Used to tell GameManager that the Continue button in the pause menu got pressed */
-    public void ContinueGameFromPauseMenu()
-    {
-        Pause();
-    }
-
-    /* Used to tell GameManager that player went back to main menu after already being in game.*/
-    public void GoBackToMainMenu()
-    {
-        // Telling Game UI that main menu is there now and they have to go away
-        BackToMain.Invoke();
+        // just clear everything in UI that is not Game Over Menu
+        SignalBus.Fire(new GameOverSignal());
+        SignalBus.Fire(new GameUIOffSignal());
+        // Setting player to dead, and disallowing themto move
+        _playerAlive = false;
+        _inputManager.TriggerDisable();
 
         // Deleting scene
         _popMod.DepopulatePrefabs();
         // Destroying player
         DestroyPlayer();
-
-        // Saving game information if user came out of unfinished game
-        if (_remainingLifes > 0 && Time.time - _startTime < TIMER_LENGTH)
-        {
-            SaveGameInformation();
-        }
     }
 
-    /* Used to tell GameManager that player pressed continue in main menu. */
-    public void ContinueGameFromSaveFile()
-    {
-        LoadGameInformation();
-        _popMod.PopulateWithPrefab(_currentObjectAmount);
-        SpawnPlayer(false);
-        _isPaused = false;
-        _highscoreSubmitted = false;
-    }
-
-
-    /* Used to tell GameManager that highscore got submitted */
-    public void SaveHighscore(string name)
-    {
-        if (!_highscoreSubmitted)
-        {
-            SaveHighscoreInformation(name);
-            _highscoreSubmitted = true;
-        }     
-    }
-
-    /* 
-     * Used to tell GameManger that Checkpoint got reached.
-     * Teleports player back to beginning.
-     * Repopulates level.
-     */
-    public void CheckpointReached()
-    {
-        // Updating Level display
-        _currentLevel++;
-        LevelUpdate.Invoke(_currentLevel);
-
-        // Ereasing old level
-        _popMod.DepopulatePrefabs();
-        // Creating new level
-        _currentObjectAmount += OBJECT_AMOUNT_PROGRESSION;
-        _popMod.PopulateWithPrefab(_currentObjectAmount);
-
-        // Setting player back, but keeping x and y coordinate, so it is not as obvious
-        Vector3 playerPosition = _currentPlayerObject.transform.position;
-        _currentPlayerObject.transform.position = new Vector3(playerPosition.x, playerPosition.y, _playerSpawnPosition.z);
-    }
-
-    /*--- GAME LOOP -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-
-    /*
-     * Pauses game. Continues game.
-     */
-    private void Pause()
-    {
-        _isPaused = !_isPaused;
-        Paused.Invoke(_isPaused);
-    }
-
-    /*
-     * Updates time counter.
-     */
-    private void CountdownUpdate()
-    {
-        TimeLeft.Invoke((float)Math.Round(TIMER_LENGTH - Time.time + _startTime, 2));
-    }
-
-    /*
-     * Checks if game is over (0 lifes or time ran out)
-     */
-    private void CheckGameOver()
-    {
-        // Time ran out or no more lifes left
-        if (Time.time - _startTime >= TIMER_LENGTH || _remainingLifes == 0)
-        {
-            // just clear everything in UI that is not Game Over Menu
-            GameOver.Invoke();
-            // Setting player to dead, and disallowing themto move
-            _playerAlive = false;
-            _inputManager.TriggerDisable();
-
-            // Deleting scene
-            _popMod.DepopulatePrefabs();
-            // Destroying player
-            DestroyPlayer();
-        }
-    }
-
-    /*
-     * Checks if player died this frame.
-     */
-    private void CheckDeath()
-    {
-        // Player died
-        if (DeathHappened || _currentPlayerObject.transform.position.y < -5f)
-        {
-            StartCoroutine(Respawn());
-            DeathHappened = false;
-        }
-    }
 
     /*
      * Restarts the game if enough lifes are left.
@@ -301,7 +196,6 @@ public class GameManager : MonoBehaviour
 
         // Setting player to dead
         _playerAlive = false;
-        PlayerDied.Invoke(STARTING_LIFES, _remainingLifes);
         _remainingLifes--;
         DestroyPlayer();
 
@@ -311,11 +205,8 @@ public class GameManager : MonoBehaviour
         // Use next life if possible
         if (_remainingLifes > 0)
         {
-            // Removing timer while respawning animation is playing
-            TimerDisplayed.Invoke(false);
-
             // Respawning player
-            SpawnPlayer(true);
+            SpawnPlayer();
 
             // Wait for respawn message to have been fully displayed
             yield return new WaitForSeconds(RespawnMessageTime);
@@ -323,20 +214,22 @@ public class GameManager : MonoBehaviour
             // Setting player to be alive again
             _playerAlive = true;
 
-            // Setting time back and displaying it again
-            TimerDisplayed.Invoke(true);
             // Correcting time
             _startTime -= (respawnStartTime - Time.time);
 
             // player can move again
             _inputManager.TriggerEnable();
         }
+        else
+        {
+            GameIsOver();
+        }
     }
 
     /* 
      * Handles spawning of player.
      */
-    private void SpawnPlayer(bool respawn)
+    private void SpawnPlayer()
     {
         // Player object
         _currentPlayerObject = Instantiate(_playerPrefab, _playerSpawnPosition, _playerPrefab.transform.rotation);
@@ -352,15 +245,6 @@ public class GameManager : MonoBehaviour
         _stateCamera.LookAt = _currentPlayerObject.transform;
         _currentPlayerObject.GetComponent<CameraTrigger>().StateCamera = _stateCamera;
         _currentPlayerObject.GetComponent<CameraTrigger>().Animator = _animator;
-
-        if (respawn) // Countdown to respawn
-        {
-            RespawnCountdown.Invoke();
-        }
-        else // Countdown to start
-        {
-            StartCountdown.Invoke();
-        }
     }
 
     /*
@@ -371,7 +255,7 @@ public class GameManager : MonoBehaviour
         Destroy(_currentPlayerObject);
     }
 
-    /*--- SAVING SYSTEM -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*--- SAVING SYSTEM FOR GAME INFORMATION -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
     /* 
      * Saves gameplay information into a file. 
@@ -388,7 +272,7 @@ public class GameManager : MonoBehaviour
      */
     private void SaveGameInformation()
     {
-        SerializedState serializedState = new SerializedState(_remainingLifes, TIMER_LENGTH - (Time.time - _startTime), _currentLevel);
+        SerializedState serializedState = new SerializedState(_remainingLifes, TimerLength - (Time.time - _startTime), _currentLevel);
         serializedState.Serialize();
         // Overwritting old file
         File.WriteAllText(SAVE_PATH_GAME_INFORMATION, JsonUtility.ToJson(serializedState));
@@ -404,15 +288,15 @@ public class GameManager : MonoBehaviour
         JsonUtility.FromJsonOverwrite(json, serializedState);
 
         _remainingLifes = serializedState.remainingLifes;
-        _startTime = Time.time - (TIMER_LENGTH - serializedState.remainingTime);
+        _startTime = Time.time - (TimerLength - serializedState.remainingTime);
         _currentLevel = serializedState.currentLevel;
         _currentObjectAmount = OBJECT_AMOUNT_PROGRESSION * _currentLevel;
 
         // Update level and life display
-        LevelUpdate.Invoke(_currentLevel);
+        SignalBus.Fire(new LevelUpdateSignal { Level = _currentLevel });
         for (int i = _remainingLifes; i < STARTING_LIFES; i++)
         {
-            PlayerDied.Invoke(STARTING_LIFES, i + 1);
+            SignalBus.Fire(new PlayerDiedSignal());
         }
 
         // Deleting file, no use for it anymore
@@ -446,6 +330,124 @@ public class GameManager : MonoBehaviour
             JsonUtility.FromJsonOverwrite(json, HighscoreData);
         }
 
+    }
+
+    /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+    /*
+     * A new game has been started.
+     */
+    public void OnEventHappen(NewGameSignal e)
+    {
+        // Setting everything to default -> need when starting new game while a also having already played a game in the same session
+        _remainingLifes = STARTING_LIFES;
+        _startTime = Time.time;
+        _currentLevel = 1;
+        SignalBus.Fire(new LevelUpdateSignal { Level = _currentLevel });
+        _currentObjectAmount = OBJECT_AMOUNT_PROGRESSION;
+        _highscoreSubmitted = false;
+
+        // Setting up first level up
+        _popMod.PopulateWithPrefab(_currentObjectAmount);
+
+        // Player
+        SpawnPlayer();
+    }
+
+    /*
+     * Player died.
+     */
+    public void OnEventHappen(PlayerDiedSignal e)
+    {
+        StartCoroutine(Respawn());
+    }
+
+    /*
+     * Continue run from save file.
+     */
+    public void OnEventHappen(ContinueFromSaveFileSignal e)
+    {
+        LoadGameInformation();
+        _popMod.PopulateWithPrefab(_currentObjectAmount);
+        SpawnPlayer();
+        _isPaused = false;
+        _highscoreSubmitted = false;
+    }
+
+    /*
+     * Pause and continue.
+     */
+    public void OnEventHappen(PauseSignal e)
+    {
+        _isPaused = e.IsPaused;
+    }
+
+    /*
+     * Start.
+     */
+    public void OnEventHappen(StartSignal e)
+    {
+        // player can move and is alive
+        _playerAlive = true;
+        _inputManager.TriggerEnable();
+
+        // No pause
+        _isPaused = false;
+
+        // Countdown
+        _startTime = (float)Math.Round(Time.time, 2);
+    }
+
+    /*
+     * Game stops, because player goes back to main menu.
+     */
+    public void OnEventHappen(BackToMainMenuSignal e)
+    {
+        // Telling Game UI that main menu is there now and they have to go away
+        SignalBus.Fire(new GameUIOffSignal());
+
+        // Deleting scene
+        _popMod.DepopulatePrefabs();
+        // Destroying player
+        DestroyPlayer();
+
+        // Saving game information if user came out of unfinished game
+        if (_remainingLifes > 0 && Time.time - _startTime < TimerLength)
+        {
+            SaveGameInformation();
+        }
+    }
+
+    /*
+     * Save highscore.
+     */
+    public void OnEventHappen(SaveHighscoreSignal e)
+    {
+        if (!_highscoreSubmitted)
+        {
+            SaveHighscoreInformation(e.PlayerName);
+            _highscoreSubmitted = true;
+        }
+    }
+
+    /*
+     * Checkpoint reached.
+     */
+    public void OnEventHappen(CheckpointSignal e)
+    {
+        // Updating Level display
+        _currentLevel++;
+        SignalBus.Fire(new LevelUpdateSignal { Level = _currentLevel });
+
+        // Ereasing old level
+        _popMod.DepopulatePrefabs();
+        // Creating new level
+        _currentObjectAmount += OBJECT_AMOUNT_PROGRESSION;
+        _popMod.PopulateWithPrefab(_currentObjectAmount);
+
+        // Setting player back, but keeping x and y coordinate, so it is not as obvious
+        Vector3 playerPosition = _currentPlayerObject.transform.position;
+        _currentPlayerObject.transform.position = new Vector3(playerPosition.x, playerPosition.y, _playerSpawnPosition.z);
     }
 }
 

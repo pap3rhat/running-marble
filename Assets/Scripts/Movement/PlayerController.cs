@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<PlayerDiedSignal>
 {
     [SerializeField] private float _playerSpeed = 20.0f;
     [SerializeField] private float _boostStrength = 250f;
@@ -12,7 +12,6 @@ public class PlayerController : MonoBehaviour
     private InputManager _inputManager;
     private Transform _cameraTransform;
 
-    private GameManager _gameManager;
     private UnityEngine.Rendering.Universal.Bloom _bloom;
 
     // Controls boost cooldown & vfx length
@@ -24,9 +23,8 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
-        _gameManager = GameManager.Instance;
-        _gameManager.RespawnCountdown.AddListener(StopBoostVFX);
-        _gameManager.GameOver.AddListener(StopBoostVFX);
+        SignalBus.Subscribe<GameOverSignal>(this);
+        SignalBus.Subscribe<PlayerDiedSignal>(this);
 
         var cam = GameObject.Find("Main Camera");
         var vol = cam.GetComponent<Volume>();
@@ -70,6 +68,8 @@ public class PlayerController : MonoBehaviour
     private void OnDestroy()
     {
         UniversalRenderPipelineUtils.SetRendererFeatureActive("SpeedLines", false);
+        SignalBus.Unsubscribe<GameOverSignal>(this);
+        SignalBus.Unsubscribe<PlayerDiedSignal>(this);
     }
 
     private void OnDisable()
@@ -80,6 +80,8 @@ public class PlayerController : MonoBehaviour
     private void OnApplicationQuit()
     {
         UniversalRenderPipelineUtils.SetRendererFeatureActive("SpeedLines", false);
+        SignalBus.Unsubscribe<GameOverSignal>(this);
+        SignalBus.Unsubscribe<PlayerDiedSignal>(this);
     }
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -110,5 +112,17 @@ public class PlayerController : MonoBehaviour
         // Letting player immediatly boost again
         _bloom.intensity.Override(1f);
         _isBoosting = false;
+    }
+
+    /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+    public void OnEventHappen(GameOverSignal e)
+    {
+        StopBoostVFX();
+    }
+
+    public void OnEventHappen(PlayerDiedSignal e)
+    {
+        StopBoostVFX();
     }
 }

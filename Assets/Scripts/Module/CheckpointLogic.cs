@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class CheckpointLogic : MonoBehaviour
 {
-    // Connection to Manager
-    private GameManager _gameManager;
-
     // Mirror Effect
     [SerializeField] private Camera _mirrorCam;
     private RenderTexture _renderTarget;
@@ -20,7 +17,6 @@ public class CheckpointLogic : MonoBehaviour
 
     private void Start()
     {
-        _gameManager = GameManager.Instance;
         SetUpCamera();
     }
 
@@ -36,7 +32,7 @@ public class CheckpointLogic : MonoBehaviour
     {
         if (other.gameObject.name.Contains(_playerObjName))
         {
-            _gameManager.CheckpointReached();
+            SignalBus.Fire(new CheckpointSignal());
         }
     }
 

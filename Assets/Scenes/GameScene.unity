@@ -1280,38 +1280,9 @@ MonoBehaviour:
   _playerPrefab: {fileID: 2643174350721090374, guid: 8a9c68eb7739daa438546fe2ed957e4b,
     type: 3}
   _playerSpawnPosition: {x: 0, y: 6, z: -145}
-  TimeLeft:
-    m_PersistentCalls:
-      m_Calls: []
-  TimerDisplayed:
-    m_PersistentCalls:
-      m_Calls: []
-  ResetLifeDisplay:
-    m_PersistentCalls:
-      m_Calls: []
-  LevelUpdate:
-    m_PersistentCalls:
-      m_Calls: []
-  PlayerDied:
-    m_PersistentCalls:
-      m_Calls: []
-  RespawnCountdown:
-    m_PersistentCalls:
-      m_Calls: []
+  TimerLength: 60
   RespawnMessageTime: 0
-  StartCountdown:
-    m_PersistentCalls:
-      m_Calls: []
-  GameOver:
-    m_PersistentCalls:
-      m_Calls: []
   DeathHappened: 0
-  Paused:
-    m_PersistentCalls:
-      m_Calls: []
-  BackToMain:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!4 &219741801
 Transform:
   m_ObjectHideFlags: 0
@@ -14279,7 +14250,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2011336368749353799}
   - component: {fileID: 4965526412902952126}
-  - component: {fileID: 7009673456678592200}
   - component: {fileID: 5230365554992393640}
   m_Layer: 0
   m_Name: VC Third Person
@@ -16215,6 +16185,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 826a2535ae4e6ce42ae05c74b8537ad1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_vcamOwner: {fileID: 4519301338502756786}
+  _inputManager: {fileID: 0}
+  _startingRotation: {x: 0, y: 0, z: 0}
   _horizontalClampAngle: 360
   _verticalClampAngle: 45
   _horizontalSpeed: 10
@@ -16715,22 +16688,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -18, y: 0}
   m_Pivot: {x: 0, y: 1}
---- !u!114 &7009673456678592200
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5207564643107999616}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 826a2535ae4e6ce42ae05c74b8537ad1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _horizontalClampAngle: 360
-  _verticalClampAngle: 45
-  _horizontalSpeed: 10
-  _verticalSpeed: 10
 --- !u!65 &7027510198580501622
 BoxCollider:
   m_ObjectHideFlags: 0

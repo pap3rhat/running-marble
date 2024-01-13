@@ -1,26 +1,32 @@
 using TMPro;
 using UnityEngine;
-public class LevelDisplay : MonoBehaviour
+public class LevelDisplay : MonoBehaviour, ISubscriber<LevelUpdateSignal>
 {
-    private GameManager _gameManager;
-
     // Level Display Text -> Never hidden, because menu just appears above it and blocks it
     [SerializeField] private TextMeshProUGUI _levelText;
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
     private void Awake()
     {
-        _gameManager = GameManager.Instance;
-        _gameManager.LevelUpdate.AddListener(OnLevelUpdate);
+        SignalBus.Subscribe<LevelUpdateSignal>(this);
     }
+
+    private void OnDestroy()
+    {
+        SignalBus.Unsubscribe<LevelUpdateSignal>(this);
+    }
+
+    private void OnApplicationQuit()
+    {
+        SignalBus.Unsubscribe<LevelUpdateSignal>(this);
+    }
+
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-    /*
-     *  Handles displaying current level.
-     */
-    private void OnLevelUpdate(int lvl)
+    public void OnEventHappen(LevelUpdateSignal e)
     {
-        _levelText.text = $"Level: {lvl}";
+        _levelText.text = $"Level: {e.Level}";
     }
 }

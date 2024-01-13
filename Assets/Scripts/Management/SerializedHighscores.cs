@@ -5,12 +5,6 @@ using System.Collections.Generic;
 public class SerializedHighscores
 {
     public List<Highscore> Highscores = new();
-
-    //public SerializedHighscores(List<Highscore> scores)
-    //{
-    //    Highscores = scores;
-    //}
-
 }
 
 [Serializable]

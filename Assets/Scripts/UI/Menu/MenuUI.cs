@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
 
-public class MenuUI : MonoBehaviour
+public class MenuUI : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<PauseSignal>, ISubscriber<LevelUpdateSignal>
 {
     // AudioMixer
     [SerializeField] private AudioMixer _audioMixer;
@@ -81,18 +81,20 @@ public class MenuUI : MonoBehaviour
     {
         // --- GAME OVER MENU ---
         _gameOverMenu.SetActive(false);
-        _gameManager.GameOver.AddListener(OnGameOver);
+        SignalBus.Subscribe<GameOverSignal>(this);
+
         _nameInput.onValueChanged.AddListener(value => _highscoreName = value);
-        _gameManager.LevelUpdate.AddListener(value => _score = value);
 
         // --- PAUSE MENU --
         _pauseMenu.SetActive(false);
-        _gameManager.Paused.AddListener(OnPaused);
+        SignalBus.Subscribe<PauseSignal>(this);
+
 
         // --- HIGHSCORES ---
         _highscoreCanvas = _highscorePanel.GetComponent<CanvasGroup>();
         _highscoreCanvas.alpha = 0;
         _highscorePanel.SetActive(false);
+        SignalBus.Subscribe<LevelUpdateSignal>(this);
 
         // --- SETTINGS ---
         _settingsCanvas = _settingsPanel.GetComponent<CanvasGroup>();
@@ -135,6 +137,21 @@ public class MenuUI : MonoBehaviour
         _svSetting.value = 50;
     }
 
+    private void OnDestroy()
+    {
+        SignalBus.Unsubscribe<GameOverSignal>(this);
+        SignalBus.Unsubscribe<PauseSignal>(this);
+        SignalBus.Unsubscribe<LevelUpdateSignal>(this);
+    }
+
+    private void OnApplicationQuit()
+    {
+        SignalBus.Unsubscribe<GameOverSignal>(this);
+        SignalBus.Unsubscribe<PauseSignal>(this);
+        SignalBus.Unsubscribe<LevelUpdateSignal>(this);
+    }
+
+
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
     /* START */
@@ -148,7 +165,7 @@ public class MenuUI : MonoBehaviour
         Time.timeScale = 1f;
         yield return new WaitForSeconds(0.3f);
         _mainMenu.SetActive(false);
-        _gameManager.StartNewGame();
+        SignalBus.Fire(new NewGameSignal());
         SwitchBackgroundMusicTracks();
     }
 
@@ -202,13 +219,6 @@ public class MenuUI : MonoBehaviour
 
 
     /* PAUSE */
-    private void OnPaused(bool pause)
-    {
-        Time.timeScale = pause ? 0f : 1f;
-        _pauseMenu.SetActive(pause);
-        SwitchBackgroundMusicTracks();
-    }
-
     public void ContinueAfterPause()
     {
         StartCoroutine(WaitForCklickAfterContinueAfterPause());
@@ -218,7 +228,7 @@ public class MenuUI : MonoBehaviour
     {
         Time.timeScale = 1f;
         yield return new WaitForSeconds(0.3f);
-        _gameManager.ContinueGameFromPauseMenu();
+        SignalBus.Fire(new PauseSignal { IsPaused = false });
     }
 
     /* BACK TO MAIN MENU */
@@ -236,7 +246,7 @@ public class MenuUI : MonoBehaviour
         yield return new WaitForSeconds(0.3f);
         Time.timeScale = 0f;
         //PositionCamera();
-        _gameManager.GoBackToMainMenu();
+        SignalBus.Fire(new BackToMainMenuSignal());
         // Showing or not showing continue button depending on whether a game to continue exists
         _continueBtn.SetActive(File.Exists(_gameManager.SAVE_PATH_GAME_INFORMATION));
     }
@@ -252,27 +262,15 @@ public class MenuUI : MonoBehaviour
         Time.timeScale = 1f;
         yield return new WaitForSeconds(0.3f);
         _mainMenu.SetActive(false);
-        _gameManager.ContinueGameFromSaveFile();
+        SignalBus.Fire(new ContinueFromSaveFileSignal());
         SwitchBackgroundMusicTracks();
     }
-
-    /* GAME OVER */
-    private void OnGameOver()
-    {
-        Time.timeScale = 0;
-        _mainMenu.SetActive(false);
-        _pauseMenu.SetActive(false);
-        _finalScoreText.text = "Your score: " + _score.ToString();
-        _gameOverMenu.SetActive(true);
-        SwitchBackgroundMusicTracks();
-    }
-
 
     /* HIGHSCORE */
     public void SubmitHighscore()
     {
         // Save highscore
-        _gameManager.SaveHighscore(_highscoreName);
+        SignalBus.Fire(new SaveHighscoreSignal { PlayerName = _highscoreName });
         // Open highscore page
         AccessHighscore();
     }
@@ -287,7 +285,6 @@ public class MenuUI : MonoBehaviour
 
 
         // Populating highscore view
-        // TODO: use sorted highscores here
         var highscores = _gameManager.HighscoreData.Highscores.OrderByDescending(i => i.Score).ToList();
         for (int i = 0; i < highscores.Count; i++)
         {
@@ -357,7 +354,7 @@ public class MenuUI : MonoBehaviour
 
     private void SetBackgroundmusicVolume(float value)
     {
-        var val = value==0 ?  0.001f : value/100;
+        var val = value == 0 ? 0.001f : value / 100;
         if (_menuPlaying)
         {
             _audioMixer.SetFloat(MIXER_MENU_BACKGROUND_MUSIC, Mathf.Log10(val) * 20);
@@ -406,6 +403,30 @@ public class MenuUI : MonoBehaviour
     {
         var image = _images[idx];
         image.color = new Color(image.color.r, image.color.g, image.color.b, 0);
+    }
+
+    /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+    public void OnEventHappen(GameOverSignal e)
+    {
+        Time.timeScale = 0;
+        _mainMenu.SetActive(false);
+        _pauseMenu.SetActive(false);
+        _finalScoreText.text = "Your score: " + _score.ToString();
+        _gameOverMenu.SetActive(true);
+        SwitchBackgroundMusicTracks();
+    }
+
+    public void OnEventHappen(PauseSignal e)
+    {
+        Time.timeScale = e.IsPaused ? 0f : 1f;
+        _pauseMenu.SetActive(e.IsPaused);
+        SwitchBackgroundMusicTracks();
+    }
+
+    public void OnEventHappen(LevelUpdateSignal e)
+    {
+        _score = e.Level;
     }
 
     // TODO: fgure out why cinemachine does not allow this and camera is not getting repositioned.
