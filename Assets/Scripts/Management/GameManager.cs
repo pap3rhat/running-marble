@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
 
     // Camera
     [SerializeField] private CinemachineStateDrivenCamera _stateCamera;
+    [SerializeField] private CinemachineFreeLook _thirdPersonCamera;
     [SerializeField] private Animator _animator;
 
     // Player information
@@ -30,7 +31,7 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
 
     // Lifes
     private static int STARTING_LIFES = 3;
-    public int RemainingLifes; 
+    public int RemainingLifes;
 
     // Level Progression
     private int _currentLevel = 1;
@@ -90,6 +91,9 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
 
         // Access to populate class
         _popMod = GameObject.Find("Base Module").GetComponentInChildren<PopulateModule>();
+
+        // Camera to UI cam
+        _animator.Play("UICamera");
     }
 
     void Start()
@@ -165,6 +169,7 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
     {
         // just clear everything in UI that is not Game Over Menu
         SignalBus.Fire(new GameOverSignal());
+        _animator.Play("UICamera");
         // Setting player to dead, and disallowing themto move
         _playerAlive = false;
         _inputManager.TriggerDisable();
@@ -336,6 +341,11 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
      */
     public void OnEventHappen(NewGameSignal e)
     {
+        _animator.Play("ThirdPersonCamera");
+        _thirdPersonCamera.m_YAxis.Value = 0;
+        _thirdPersonCamera.m_XAxis.Value = 0;
+
+
         // Setting everything to default -> need when starting new game while a also having already played a game in the same session
         RemainingLifes = STARTING_LIFES;
         _startTime = Time.time;
@@ -357,6 +367,8 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
      */
     public void OnEventHappen(PlayerDiedSignal e)
     {
+        _thirdPersonCamera.m_YAxis.Value = 0;
+        _thirdPersonCamera.m_XAxis.Value = 0;
         StartCoroutine(Respawn());
     }
 
@@ -365,6 +377,10 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
      */
     public void OnEventHappen(ContinueFromSaveFileSignal e)
     {
+        _animator.Play("ThirdPersonCamera");
+        _thirdPersonCamera.m_YAxis.Value = 0;
+        _thirdPersonCamera.m_XAxis.Value = 0;
+
         LoadGameInformation();
         _popMod.PopulateWithPrefab(_currentObjectAmount);
         SpawnPlayer();
@@ -398,11 +414,14 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
      */
     public void OnEventHappen(BackToMainMenuSignal e)
     {
+        _animator.Play("UICamera");
+
         // Deleting scene
         _popMod.DepopulatePrefabs();
         // Destroying player
         DestroyPlayer();
 
+        // TODO: see why sometimes it saves here although it should not
         // Saving game information if user came out of unfinished game
         if (RemainingLifes > 0 && Time.time - _startTime < TimerLength)
         {
