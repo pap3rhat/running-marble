@@ -370,6 +370,12 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
 
         // Player
         SpawnPlayer();
+
+        // Delete save file, if one exists 
+        if (File.Exists(SAVE_PATH_GAME_INFORMATION))
+        {
+            File.Delete(SAVE_PATH_GAME_INFORMATION);
+        }
     }
 
     /*
