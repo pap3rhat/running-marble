@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class LifeDisplay : MonoBehaviour,ISubscriber<NewGameSignal>, ISubscriber<PlayerDiedSignal>, ISubscriber<BackToMainMenuSignal>, ISubscriber<GameOverSignal>, ISubscriber<SpecificLifeSignal>
+public class LifeDisplay : MonoBehaviour,ISubscriber<NewGameSignal>, ISubscriber<PlayerDiedSignal>, ISubscriber<BackToMainMenuSignal>, ISubscriber<GameOverSignal>, ISubscriber<SpecificLifeSignal>, ISubscriber<ContinueFromSaveFileSignal>
 {
     [SerializeField] private GameObject _lifeDisplay;
     [SerializeField] private List<GameObject> _lifesIcons;
@@ -25,6 +25,7 @@ public class LifeDisplay : MonoBehaviour,ISubscriber<NewGameSignal>, ISubscriber
         SignalBus.Subscribe<BackToMainMenuSignal>(this);
         SignalBus.Subscribe<GameOverSignal>(this);
         SignalBus.Subscribe<SpecificLifeSignal>(this);
+        SignalBus.Subscribe<ContinueFromSaveFileSignal>(this);
     }
 
     private void OnDestroy()
@@ -34,6 +35,7 @@ public class LifeDisplay : MonoBehaviour,ISubscriber<NewGameSignal>, ISubscriber
         SignalBus.Unsubscribe<BackToMainMenuSignal>(this);
         SignalBus.Unsubscribe<GameOverSignal>(this);
         SignalBus.Unsubscribe<SpecificLifeSignal>(this);
+        SignalBus.Subscribe<ContinueFromSaveFileSignal>(this);
     }
 
     private void OnApplicationQuit()
@@ -43,6 +45,7 @@ public class LifeDisplay : MonoBehaviour,ISubscriber<NewGameSignal>, ISubscriber
         SignalBus.Unsubscribe<BackToMainMenuSignal>(this);
         SignalBus.Unsubscribe<GameOverSignal>(this);
         SignalBus.Unsubscribe<SpecificLifeSignal>(this);
+        SignalBus.Subscribe<ContinueFromSaveFileSignal>(this);
     }
 
     /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -91,6 +94,10 @@ public class LifeDisplay : MonoBehaviour,ISubscriber<NewGameSignal>, ISubscriber
     {
         _lifesIcons[e.index].GetComponent<Image>().sprite = _deadLifeIcon;
         _dark++;
+    }
+
+    public void OnEventHappen(ContinueFromSaveFileSignal e)
+    {
         TurnOn();
     }
 }

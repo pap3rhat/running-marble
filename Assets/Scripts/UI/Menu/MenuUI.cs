@@ -17,11 +17,6 @@ public class MenuUI : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<Pa
     private const string MIXER_SFX = "SFX";
     private bool _menuPlaying = true;
 
-    // Camera -> used to position so it looks nicer
-    //[SerializeField] private GameObject _mainCamera;
-    private Vector3 _mainCameraPos = new Vector3(-1.7f, 7.85f, -150);
-    private Vector3 _mainCameraRot = new Vector3(45f, 0, 0);
-
     // Main Menu
     [SerializeField] private GameObject _mainMenu;
     [SerializeField] private GameObject _continueBtn;
@@ -286,30 +281,50 @@ public class MenuUI : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<Pa
 
         // Populating highscore view
         var highscores = _gameManager.HighscoreData.Highscores.OrderByDescending(i => i.Score).ToList();
-        for (int i = 0; i < highscores.Count; i++)
+        if (highscores.Count == 0)
         {
-            GameObject entry;
-            if (i % 2 == 0)
-            {
-                entry = Instantiate(_highscoreEntraDarkPrefab);
-            }
-            else
-            {
-                entry = Instantiate(_highscoreEntraLightPrefab);
-            }
+            var entry = Instantiate(_highscoreEntraDarkPrefab);
             entry.transform.SetParent(_highscoreEntryContainer.transform);
+
             foreach (var text in entry.GetComponentsInChildren<TMP_Text>())
             {
                 if (text.gameObject.name.Equals("Highscore Entry Name"))
                 {
-                    text.text = highscores[i].Name;
+                    text.text = "No highscores yet!";
                 }
                 else
                 {
-                    text.text = highscores[i].Score.ToString();
+                    text.text = "";
                 }
             };
+        }
+        else
+        {
+            for (int i = 0; i < highscores.Count; i++)
+            {
+                GameObject entry;
+                if (i % 2 == 0)
+                {
+                    entry = Instantiate(_highscoreEntraDarkPrefab);
+                }
+                else
+                {
+                    entry = Instantiate(_highscoreEntraLightPrefab);
+                }
+                entry.transform.SetParent(_highscoreEntryContainer.transform);
+                foreach (var text in entry.GetComponentsInChildren<TMP_Text>())
+                {
+                    if (text.gameObject.name.Equals("Highscore Entry Name"))
+                    {
+                        text.text = highscores[i].Name;
+                    }
+                    else
+                    {
+                        text.text = highscores[i].Score.ToString();
+                    }
+                };
 
+            }
         }
 
         // Making menu visible

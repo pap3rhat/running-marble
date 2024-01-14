@@ -64,25 +64,21 @@ public class TimerDisplay : MonoBehaviour, ISubscriber<RemainingTimeSignal>, ISu
 
     public void OnEventHappen(BackToMainMenuSignal e)
     {
-        Debug.Log($"Back to main: {_countdownText.text}");
         TurnOff();
     }
 
     public void OnEventHappen(ContinueFromSaveFileSignal e)
     {
-        Debug.Log($"Continue save file: {_countdownText.text}");
         TurnOn();
     }
 
     public void OnEventHappen(GameOverSignal e)
     {
-        Debug.Log($"Game over: {_countdownText.text}");
         TurnOff();
     }
 
     public void OnEventHappen(NewGameSignal e)
     {
-        Debug.Log($"New game: {_countdownText.text}");
         TurnOn();
     }
 }

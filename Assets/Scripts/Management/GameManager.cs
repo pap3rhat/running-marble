@@ -45,7 +45,7 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
     [HideInInspector] public float SpawnMessageTime; // used to control how much time needs to subtracted when starting from save file, set by CentralMEssageDisplay class
 
     // Pause
-    private bool _isPaused = false;
+    private bool _isPaused = true;
 
     // Instance
     private static GameManager _instance;
@@ -133,7 +133,7 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
 
         // TODO: check if this truely only saves when player is still playing
         // Saving game information if user closes application and is still in play
-        if (RemainingLifes > 0 && Time.time - _startTime < TimerLength)
+        if (!_isPaused && RemainingLifes > 0 && Time.time - _startTime < TimerLength)
         {
             SaveGameInformation();
         }
@@ -271,8 +271,7 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
      */
     private void SaveGameInformation()
     {
-        // The time added is to compensate for the time waited until the button click sound is played (not the smartest, I know)
-        SerializedState serializedState = new SerializedState(RemainingLifes, TimerLength - (Time.time - _startTime) + 0.3f, _currentLevel);
+        SerializedState serializedState = new SerializedState(RemainingLifes, TimerLength - (Time.time - _startTime), _currentLevel);
         serializedState.Serialize();
         // Overwritting old file
         File.WriteAllText(SAVE_PATH_GAME_INFORMATION, JsonUtility.ToJson(serializedState));
@@ -294,7 +293,6 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
 
         // Update level, time and life display
         SignalBus.Fire(new LevelUpdateSignal { Level = _currentLevel });
-        Debug.Log(RemainingLifes);
         for (int i = RemainingLifes; i < STARTING_LIFES; i++)
         {
             SignalBus.Fire(new SpecificLifeSignal { index = STARTING_LIFES - i - 1 });
@@ -394,6 +392,12 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
     public void OnEventHappen(PauseSignal e)
     {
         _isPaused = e.IsPaused;
+        if (_isPaused)
+        {
+            // Adjusting for time that is waited for button click sound to be played
+            _startTime += 0.3f;
+            SaveGameInformation();
+        }
     }
 
     /*
@@ -421,9 +425,8 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
         // Destroying player
         DestroyPlayer();
 
-        // TODO: see why sometimes it saves here although it should not
         // Saving game information if user came out of unfinished game
-        if (RemainingLifes > 0 && Time.time - _startTime < TimerLength)
+        if (_isPaused)
         {
             SaveGameInformation();
         }
