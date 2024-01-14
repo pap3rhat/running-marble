@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
@@ -11,6 +12,9 @@ using UnityEngine.UI;
 public class MenuUI : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<PauseSignal>, ISubscriber<LevelUpdateSignal>
 {
     #region
+    // Saving settings
+    private string SAVE_PATH_SETTINGS;
+
     // AudioMixer
     [SerializeField] private AudioMixer _audioMixer;
     private const string MIXER_MENU_BACKGROUND_MUSIC = "MenuBackground";
@@ -72,6 +76,7 @@ public class MenuUI : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<Pa
         _gameManager = GameManager.Instance;
         // Showing or not showing continue button depending on whether a game to continue exists
         _continueBtn.SetActive(File.Exists(_gameManager.SAVE_PATH_GAME_INFORMATION));
+        SAVE_PATH_SETTINGS = Path.Combine(Application.persistentDataPath, "superDuperSaveFileForSettings.json");
     }
 
     private void Start()
@@ -98,11 +103,13 @@ public class MenuUI : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<Pa
         _settingsCanvas.alpha = 0;
         _settingsPanel.SetActive(false);
 
-        _resolutions = Screen.resolutions.Select(r => new TMP_Dropdown.OptionData(r.ToString().Split("@")[0])).ToList();
-        // TODO: figure out why that is not working
+        //_resolutions = Screen.resolutions.Distinct().Select(r => new TMP_Dropdown.OptionData(r.ToString().Split("@")[0])).ToList();
+        _resolutions = Screen.resolutions.Distinct().Select(r => new TMP_Dropdown.OptionData(r.ToString())).ToList();
+        // The update frequency does not change at the moment when selecting another option, because it did not work. But by leaving it in all options are unique.
         _resolutions = _resolutions.Distinct().ToList();
         _srSetting.options = _resolutions;
         _srSetting.onValueChanged.AddListener(ChangeScreenResolution);
+        _srSetting.value = _srSetting.options.FindIndex(option => option.text == Screen.currentResolution.ToString().Split("@")[0]);
 
         _displayModes = FullScreenMode.GetNames(typeof(FullScreenMode)).ToList().Select(r => new TMP_Dropdown.OptionData(r.ToString())).ToList();
         _dmSetting.options = _displayModes;
@@ -116,7 +123,6 @@ public class MenuUI : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<Pa
         _usSetting.value = 1;
 
 
-        // TODO: do this once sound and music is implemented
         _mvSetting.minValue = 0;
         _mvSetting.maxValue = 100;
         _mvSetting.wholeNumbers = true;
@@ -124,14 +130,14 @@ public class MenuUI : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<Pa
         _mvSetting.onValueChanged.AddListener(SetBackgroundmusicVolume);
         _mvSetting.value = 50;
 
-
-
         _svSetting.minValue = 0;
         _svSetting.maxValue = 100;
         _svSetting.wholeNumbers = true;
         _svSetting.onValueChanged.AddListener(value => _svSettingText.text = value.ToString());
         _svSetting.onValueChanged.AddListener(SetSFXVolume);
         _svSetting.value = 50;
+
+        LoadSettingsInformation();
     }
 
     private void OnDestroy()
@@ -146,6 +152,8 @@ public class MenuUI : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<Pa
         SignalBus.Unsubscribe<GameOverSignal>(this);
         SignalBus.Unsubscribe<PauseSignal>(this);
         SignalBus.Unsubscribe<LevelUpdateSignal>(this);
+
+        SaveSettingsInformation();
     }
 
     #endregion
@@ -178,6 +186,7 @@ public class MenuUI : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<Pa
 
     public void CloseSettings()
     {
+        SaveSettingsInformation();
         StartCoroutine(FadeOut(_settingsCanvas, _settingsPanel));
     }
 
@@ -456,5 +465,75 @@ public class MenuUI : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<Pa
     {
         _score = e.Level;
     }
+    #endregion
+
+    /*--- SAVING FOR SETTINGS -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+    #region
+
+    /*
+     * Saves Settings in file.
+     */
+    private void SaveSettingsInformation()
+    {
+        SerializedSettings serializedSettings = new SerializedSettings(_srSetting.value, _dmSetting.value, _mvSetting.value, _svSetting.value);
+        serializedSettings.Serialize();
+        // Overwritting old file
+        File.WriteAllText(SAVE_PATH_SETTINGS, JsonUtility.ToJson(serializedSettings));
+    }
+
+    /*
+    * Loads settings from settings information save file.
+    */
+    private void LoadSettingsInformation()
+    {
+        if (File.Exists(SAVE_PATH_SETTINGS))
+        {
+            var json = File.ReadAllText(SAVE_PATH_SETTINGS);
+            var serializedSettings = new SerializedSettings();
+            JsonUtility.FromJsonOverwrite(json, serializedSettings);
+
+            // Sreen resoultion
+            #region
+            var x = _srSetting.options[serializedSettings.ScreenResolution].text.Split(" ")[0];
+            var y = _srSetting.options[serializedSettings.ScreenResolution].text.Split(" ")[2];
+            Screen.SetResolution(Int32.Parse(x), Int32.Parse(y), FullScreenMode.ExclusiveFullScreen);
+            _srSetting.value = serializedSettings.ScreenResolution;
+            #endregion
+
+            // Fullscreen mode
+            #region
+            var d = _dmSetting.options[serializedSettings.FullscreenMode].text;
+            if (d.Equals("FullScreenWindow"))
+            {
+                Screen.fullScreenMode = FullScreenMode.FullScreenWindow;
+            }
+            else if (d.Equals("ExclusiveFullScreen"))
+            {
+                Screen.fullScreenMode = FullScreenMode.ExclusiveFullScreen;
+            }
+            else if (d.Equals("MaximizedWindow"))
+            {
+                Screen.fullScreenMode = FullScreenMode.MaximizedWindow;
+            }
+            else if (d.Equals("Windowed"))
+            {
+                Screen.fullScreenMode = FullScreenMode.Windowed;
+            }
+            _dmSetting.value = serializedSettings.FullscreenMode;
+            #endregion
+
+            // UI Scale TODO
+
+            // Backgroundmusic volume
+            SetBackgroundmusicVolume(serializedSettings.BackgroundmusicVolume);
+            _mvSetting.value = serializedSettings.BackgroundmusicVolume;
+
+            // SFX Volume
+            SetSFXVolume(serializedSettings.SFXVolume);
+            _svSetting.value = serializedSettings.SFXVolume;
+        }
+    }
+
     #endregion
 }

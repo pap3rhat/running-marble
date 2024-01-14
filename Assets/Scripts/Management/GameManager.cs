@@ -133,8 +133,6 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
 
     private void OnApplicationQuit()
     {
-
-        // TODO: check if this truely only saves when player is still playing
         // Saving game information if user closes application and is still in play
         if (!_isPaused && RemainingLifes > 0 && Time.time - _startTime < TimerLength)
         {
@@ -190,7 +188,6 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
 
     /*
      * Restarts the game if enough lifes are left.
-     * TODO: REMOVE THIS UGLY SPHAGET (or don't, because there is no non-ugly way, mabye, probably, who even knows)
      */
     private IEnumerator Respawn()
     {
