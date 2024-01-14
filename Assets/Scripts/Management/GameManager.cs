@@ -6,6 +6,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscriber<PlayerDiedSignal>, ISubscriber<ContinueFromSaveFileSignal>, ISubscriber<PauseSignal>, ISubscriber<StartSignal>, ISubscriber<BackToMainMenuSignal>, ISubscriber<SaveHighscoreSignal>, ISubscriber<CheckpointSignal>
 {
+    #region
     // Saving system
     public string SAVE_PATH_GAME_INFORMATION;
     public string SAVE_PATH_HIGHSCORES;
@@ -50,9 +51,11 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
     // Instance
     private static GameManager _instance;
     public static GameManager Instance { get => _instance; }
+    #endregion
 
-    /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*--- UNITY FUNCTIONS -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
+    #region
     private void Awake()
     {
         // Save paths
@@ -160,7 +163,11 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
         SignalBus.Unsubscribe<SaveHighscoreSignal>(this);
     }
 
-    /*--- GAME LOOP -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    #endregion
+
+    /*--- GAME LOOP FUNCTIONS -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+    #region
 
     /*
      * Cleans up everything after game is over.
@@ -254,7 +261,11 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
         }
     }
 
+    #endregion
+
     /*--- SAVING SYSTEM FOR GAME INFORMATION -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+    #region
 
     /* 
      * Saves gameplay information into a file. 
@@ -332,7 +343,11 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
 
     }
 
+    #endregion
+
     /*--- REACTING TO EVENTS -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+    #region
 
     /*
      * A new game has been started.
@@ -463,5 +478,7 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
         Vector3 playerPosition = _currentPlayerObject.transform.position;
         _currentPlayerObject.transform.position = new Vector3(playerPosition.x, playerPosition.y, _playerSpawnPosition.z);
     }
+
+    #endregion
 }
 

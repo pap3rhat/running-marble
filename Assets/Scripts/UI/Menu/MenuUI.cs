@@ -10,6 +10,7 @@ using UnityEngine.UI;
 
 public class MenuUI : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<PauseSignal>, ISubscriber<LevelUpdateSignal>
 {
+    #region
     // AudioMixer
     [SerializeField] private AudioMixer _audioMixer;
     private const string MIXER_MENU_BACKGROUND_MUSIC = "MenuBackground";
@@ -62,9 +63,10 @@ public class MenuUI : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<Pa
     private float _fadeOutTime = 0.7f;
 
     private GameManager _gameManager;
+    #endregion
 
-    /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-
+    /*--- UNITY FUNCTIONS -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    #region
     private void Awake()
     {
         _gameManager = GameManager.Instance;
@@ -146,8 +148,11 @@ public class MenuUI : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<Pa
         SignalBus.Unsubscribe<LevelUpdateSignal>(this);
     }
 
+    #endregion
 
-    /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*--- BUTTONS -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+    #region
 
     /* START */
     public void StartGame()
@@ -338,8 +343,11 @@ public class MenuUI : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<Pa
         StartCoroutine(FadeOut(_highscoreCanvas, _highscorePanel));
     }
 
+    #endregion Buttons
+
     /*--- Specific settings -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
+    #region
     private void ChangeScreenResolution(int idx)
     {
         var x = _resolutions[idx].text.Split(" ")[0];
@@ -405,8 +413,11 @@ public class MenuUI : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<Pa
         _audioMixer.SetFloat(MIXER_SFX, Mathf.Log10(val) * 20);
     }
 
+    #endregion
+
     /*--- Make stuff better looking -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
+    #region 
     /* This needs to be two functions, cause Unity says so */
     public void ChangeButtonBackgroundOpacityToOne(int idx)
     {
@@ -419,9 +430,11 @@ public class MenuUI : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<Pa
         var image = _images[idx];
         image.color = new Color(image.color.r, image.color.g, image.color.b, 0);
     }
+    #endregion
 
-    /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*--- SIGNAL RESPONSES -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
+    #region
     public void OnEventHappen(GameOverSignal e)
     {
         Time.timeScale = 0;
@@ -443,13 +456,5 @@ public class MenuUI : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<Pa
     {
         _score = e.Level;
     }
-
-    // TODO: fgure out why cinemachine does not allow this and camera is not getting repositioned.
-    /* Positioning camera. */
-    //private void PositionCamera()
-    //{
-    //    _mainCamera.transform.position = _mainCameraPos;
-    //    _mainCamera.transform.rotation = Quaternion.Euler(_mainCameraRot);
-    //}
-
+    #endregion
 }
