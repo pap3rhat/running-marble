@@ -130,11 +130,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Active: 1
   settings:
-    OutlineColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-    OutlineThickness: 0.5
+    OutlineColor: {r: 0.3018868, g: 0.3018868, b: 0.3018868, a: 1}
+    OutlineThickness: 1
     samplingNoiseStrength: 0.00339
     samplingNoiseSmoothness: 415
-    colorThreshold: 0.47
+    colorThreshold: 1.17
     depthThreshold: 0.05
   m_vertexColorEdges: {fileID: -6465566751694194690, guid: 5425a6bb88d492d48a965f0908531ff3,
     type: 3}
