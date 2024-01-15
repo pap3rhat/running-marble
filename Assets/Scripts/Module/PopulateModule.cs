@@ -51,7 +51,8 @@ public class PopulateModule : MonoBehaviour
         }
 
         // Adding new obsatcles as long as maximum amount of obstacle has not been reached or until no more obstacles can be placed due to space restrictions.
-        // Space restrictions might lead to less obsatcles being placed that the given object amount, but that only happens when a lot of objects should be placed (like 70+) and at that point that's okay (it's my game, I can say that).
+        // Space restrictions might lead to less obsatcles being placed than the given object amount,
+        // but that only happens when a lot of objects should be placed (like 70+).
         while ((setObjects < objectAmount) && (_freeSpaces.Count != 0))
         {
             int randomIdx = UnityEngine.Random.Range(0, _freeSpaces.Count - 1);
@@ -60,7 +61,8 @@ public class PopulateModule : MonoBehaviour
             var y = _freeSpaces[randomIdx].Item2;
 
             // Can a big object be placed as well?
-            // If not, only a small one will be placed. Leads to more small ones being placed than wide ones, but that's okay as well (still my game).
+            // If not, only a small one will be placed.
+            // Leads to more small ones being placed than wide ones.
             if (DoubleCanBePlaced(x, y))
             {
                 switch (UnityEngine.Random.Range(0, 6))
