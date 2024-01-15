@@ -11,8 +11,9 @@ public class PlayerController : MonoBehaviour, ISubscriber<GameOverSignal>, ISub
     private Rigidbody _playerRigidBody;
     private InputManager _inputManager;
     private Transform _cameraTransform;
-
-    private UnityEngine.Rendering.Universal.Bloom _bloom;
+    private Material _playerMaterial;
+    private Color _boostableColor = new(0.9254901960784314f, 0.9254901960784314f, 0.9254901960784314f);
+    private Color _defaultColor = new(0.42745098039215684f, 0.5843137254901961f, 1);
 
     // Controls boost cooldown & vfx length
     private bool _isBoosting = false;
@@ -28,13 +29,14 @@ public class PlayerController : MonoBehaviour, ISubscriber<GameOverSignal>, ISub
 
         var cam = GameObject.Find("Main Camera");
         var vol = cam.GetComponent<Volume>();
-        if (!vol.profile.TryGet(out _bloom)) throw new System.NullReferenceException(nameof(_bloom));
 
         UniversalRenderPipelineUtils.SetRendererFeatureActive("SpeedLines", false);
     }
 
     private void Start()
     {
+        _playerMaterial = GetComponent<Renderer>().material;
+        _playerMaterial.color = _boostableColor;
         _playerRigidBody = GetComponent<Rigidbody>();
         _inputManager = InputManager.Instance;
         _cameraTransform = Camera.main.transform;
@@ -88,18 +90,17 @@ public class PlayerController : MonoBehaviour, ISubscriber<GameOverSignal>, ISub
 
     private IEnumerator BoostControl()
     {
-       
-        _bloom.intensity.Override(0f);
-
+        _playerMaterial.color = _defaultColor;
         _isBoosting = true;
+
         UniversalRenderPipelineUtils.SetRendererFeatureActive("SpeedLines", true);
         yield return new WaitForSeconds(_vfxLength);
         UniversalRenderPipelineUtils.SetRendererFeatureActive("SpeedLines", false);
         yield return new WaitForSeconds(_boostCooldown - _vfxLength);
 
-        _bloom.intensity.Override(1f);
+        _playerMaterial.color = _boostableColor;
         _isBoosting = false;
-       
+
 
     }
 
@@ -110,7 +111,7 @@ public class PlayerController : MonoBehaviour, ISubscriber<GameOverSignal>, ISub
         // Deactivating Render Feature
         UniversalRenderPipelineUtils.SetRendererFeatureActive("SpeedLines", false);
         // Letting player immediatly boost again
-        _bloom.intensity.Override(1f);
+        _playerMaterial.color = _boostableColor;
         _isBoosting = false;
     }
 

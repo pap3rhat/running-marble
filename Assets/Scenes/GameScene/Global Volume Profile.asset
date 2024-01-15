@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70afe9e12c7a7ed47911bb608a23a8ff, type: 3}
   m_Name: SplitToning
   m_EditorClassIdentifier: 
-  active: 1
+  active: 0
   shadows:
     m_OverrideState: 1
     m_Value: {r: 0.7137255, g: 0.5176471, b: 0, a: 1}
@@ -387,7 +387,7 @@ MonoBehaviour:
     m_Value: 1.05
   intensity:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 2
   scatter:
     m_OverrideState: 0
     m_Value: 0.7
@@ -396,7 +396,7 @@ MonoBehaviour:
     m_Value: 65472
   tint:
     m_OverrideState: 1
-    m_Value: {r: 0, g: 0.273973, b: 1, a: 1}
+    m_Value: {r: 0.9254902, g: 0.9254902, b: 0.9254902, a: 1}
   highQualityFiltering:
     m_OverrideState: 0
     m_Value: 0
