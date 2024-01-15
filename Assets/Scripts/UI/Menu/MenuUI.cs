@@ -12,6 +12,11 @@ using UnityEngine.UI;
 public class MenuUI : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<PauseSignal>, ISubscriber<LevelUpdateSignal>
 {
     #region
+    // Main Canvas
+    [SerializeField] private Canvas _mainCanvas;
+    private CanvasScaler _mainCanvasScaler;
+    private Vector2 _defaultUIResolution;
+
     // Saving settings
     private string SAVE_PATH_SETTINGS;
 
@@ -81,6 +86,10 @@ public class MenuUI : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<Pa
 
     private void Start()
     {
+        // --- MAIN CANVAS ---
+        _mainCanvasScaler = _mainCanvas.GetComponent<CanvasScaler>();
+        _defaultUIResolution = _mainCanvasScaler.referenceResolution;
+
         // --- GAME OVER MENU ---
         _gameOverMenu.SetActive(false);
         SignalBus.Subscribe<GameOverSignal>(this);
@@ -115,11 +124,10 @@ public class MenuUI : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<Pa
         _dmSetting.options = _displayModes;
         _dmSetting.onValueChanged.AddListener(ChangeDisplayMode);
 
-
-        // TODO: figure out how to make UI differently sized
-        _usSetting.minValue = 0.25f;
-        _usSetting.maxValue = 5;
+        _usSetting.minValue = 0.1f;
+        _usSetting.maxValue = 1;
         _usSetting.onValueChanged.AddListener(value => _usSettingText.text = value.ToString());
+        _usSetting.onValueChanged.AddListener(SetUIScale);
         _usSetting.value = 1;
 
 
@@ -422,6 +430,11 @@ public class MenuUI : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<Pa
         _audioMixer.SetFloat(MIXER_SFX, Mathf.Log10(val) * 20);
     }
 
+    private void SetUIScale(float scale)
+    {
+        _mainCanvasScaler.referenceResolution = new Vector2(_defaultUIResolution.x / scale, _defaultUIResolution.y / scale);
+    }
+
     #endregion
 
     /*--- Make stuff better looking -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -476,7 +489,7 @@ public class MenuUI : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<Pa
      */
     private void SaveSettingsInformation()
     {
-        SerializedSettings serializedSettings = new SerializedSettings(_srSetting.value, _dmSetting.value, _mvSetting.value, _svSetting.value);
+        SerializedSettings serializedSettings = new SerializedSettings(_srSetting.value, _dmSetting.value,_usSetting.value, _mvSetting.value, _svSetting.value);
         serializedSettings.Serialize();
         // Overwritting old file
         File.WriteAllText(SAVE_PATH_SETTINGS, JsonUtility.ToJson(serializedSettings));
@@ -523,7 +536,9 @@ public class MenuUI : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<Pa
             _dmSetting.value = serializedSettings.FullscreenMode;
             #endregion
 
-            // UI Scale TODO
+            // UI Scale
+            SetUIScale(serializedSettings.UIScale);
+            _usSetting.value = serializedSettings.UIScale;
 
             // Backgroundmusic volume
             SetBackgroundmusicVolume(serializedSettings.BackgroundmusicVolume);

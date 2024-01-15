@@ -6508,6 +6508,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21213b932bdc2f04e9a9c967bd5f9e76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _mainCanvas: {fileID: 104292303}
   _audioMixer: {fileID: 24100000, guid: d6e0394c45f7e1c4cb8cec998aff30f2, type: 2}
   _mainMenu: {fileID: 1758430164}
   _continueBtn: {fileID: 5739699197068382691}
