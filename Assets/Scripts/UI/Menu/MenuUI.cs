@@ -71,6 +71,8 @@ public class MenuUI : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<Pa
     private float _fadeInTime = 0.7f;
     private float _fadeOutTime = 0.7f;
 
+    private float _maxBackgroundmusicVolume;
+
     private GameManager _gameManager;
     #endregion
 
@@ -403,23 +405,21 @@ public class MenuUI : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<Pa
         {
             _audioMixer.SetFloat(MIXER_GAME_BACKGROUND_MUSIC, Mathf.Log10(val) * 20);
         }
+
+        _maxBackgroundmusicVolume = Mathf.Log10(val) * 20;
     }
 
     private void SwitchBackgroundMusicTracks()
     {
         if (_menuPlaying)
         {
-            float currentBackgroundVolume;
-            _audioMixer.GetFloat(MIXER_MENU_BACKGROUND_MUSIC, out currentBackgroundVolume);
             StartCoroutine(FadeMixerGroup.StartFade(_audioMixer, MIXER_MENU_BACKGROUND_MUSIC, 1f, -80));
-            StartCoroutine(FadeMixerGroup.StartFade(_audioMixer, MIXER_GAME_BACKGROUND_MUSIC, 1f, currentBackgroundVolume));
+            StartCoroutine(FadeMixerGroup.StartFade(_audioMixer, MIXER_GAME_BACKGROUND_MUSIC, 1f, _maxBackgroundmusicVolume));
         }
         else
         {
-            float currentBackgroundVolume;
-            _audioMixer.GetFloat(MIXER_GAME_BACKGROUND_MUSIC, out currentBackgroundVolume);
             StartCoroutine(FadeMixerGroup.StartFade(_audioMixer, MIXER_GAME_BACKGROUND_MUSIC, 1f, -80));
-            StartCoroutine(FadeMixerGroup.StartFade(_audioMixer, MIXER_MENU_BACKGROUND_MUSIC, 1f, currentBackgroundVolume));
+            StartCoroutine(FadeMixerGroup.StartFade(_audioMixer, MIXER_MENU_BACKGROUND_MUSIC, 1f, _maxBackgroundmusicVolume));
         }
         _menuPlaying = !_menuPlaying;
     }
@@ -489,7 +489,7 @@ public class MenuUI : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<Pa
      */
     private void SaveSettingsInformation()
     {
-        SerializedSettings serializedSettings = new SerializedSettings(_srSetting.value, _dmSetting.value,_usSetting.value, _mvSetting.value, _svSetting.value);
+        SerializedSettings serializedSettings = new SerializedSettings(_srSetting.value, _dmSetting.value, _usSetting.value, _mvSetting.value, _svSetting.value);
         serializedSettings.Serialize();
         // Overwritting old file
         File.WriteAllText(SAVE_PATH_SETTINGS, JsonUtility.ToJson(serializedSettings));

@@ -16,7 +16,7 @@ public static class FadeMixerGroup
         while (currentTime < duration)
         {
             currentTime += Time.unscaledDeltaTime;
-            
+
             var newVol = Mathf.Lerp(currentVol, targetVolume, currentTime / duration);
 
             audioMixer.SetFloat(exposedParam, newVol);
