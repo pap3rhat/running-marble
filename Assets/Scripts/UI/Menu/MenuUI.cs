@@ -120,7 +120,7 @@ public class MenuUI : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<Pa
         _resolutions = _resolutions.Distinct().ToList();
         _srSetting.options = _resolutions;
         _srSetting.onValueChanged.AddListener(ChangeScreenResolution);
-        _srSetting.value = _srSetting.options.FindIndex(option => option.text == Screen.currentResolution.ToString().Split("@")[0]);
+        _srSetting.value = _srSetting.options.FindIndex(option => option.text == Screen.currentResolution.ToString());
 
         _displayModes = FullScreenMode.GetNames(typeof(FullScreenMode)).ToList().Select(r => new TMP_Dropdown.OptionData(r.ToString())).ToList();
         _dmSetting.options = _displayModes;
