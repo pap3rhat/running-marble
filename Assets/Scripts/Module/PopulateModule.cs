@@ -73,7 +73,7 @@ public class PopulateModule : MonoBehaviour
                         // Removing current space from free spaces
                         _freeSpaces.RemoveAt(randomIdx);
                         break;
-
+                
                     case 1:
                         // Adding rotator
                         _populatePlaces[(int)PoupulateIndicies.ROTATOR_IDX].Add(_freeSpaces[randomIdx]);

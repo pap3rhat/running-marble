@@ -253,16 +253,16 @@ public class MenuUI : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<Pa
     {
         _pauseMenu.SetActive(false);
         _gameOverMenu.SetActive(false);
+        // Showing or not showing continue button depending on whether a game to continue exists
+        _continueBtn.SetActive(File.Exists(_gameManager.SAVE_PATH_GAME_INFORMATION));
         _mainMenu.SetActive(true);
         StartCoroutine(WaitForCklickAfterGoBackToMain());
     }
 
     private IEnumerator WaitForCklickAfterGoBackToMain()
     {
-        Time.timeScale = 1f;
-        yield return new WaitForSeconds(0.3f);
         Time.timeScale = 0f;
-        //PositionCamera();
+        yield return new WaitForSecondsRealtime(0.3f);
         SignalBus.Fire(new BackToMainMenuSignal());
         // Showing or not showing continue button depending on whether a game to continue exists
         _continueBtn.SetActive(File.Exists(_gameManager.SAVE_PATH_GAME_INFORMATION));

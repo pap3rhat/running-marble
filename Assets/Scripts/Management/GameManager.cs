@@ -412,8 +412,6 @@ public class GameManager : MonoBehaviour, ISubscriber<NewGameSignal>, ISubscribe
         _isPaused = e.IsPaused;
         if (_isPaused)
         {
-            // Adjusting for time that is waited for button click sound to be played
-            _startTime += 0.3f;
             SaveGameInformation();
         }
     }
