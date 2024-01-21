@@ -5,7 +5,7 @@ using UnityEngine.Rendering;
 public class PlayerController : MonoBehaviour, ISubscriber<GameOverSignal>, ISubscriber<PlayerDiedSignal>
 {
     [SerializeField] private float _playerSpeed = 20.0f;
-    [SerializeField] private float _boostStrength = 250f;
+    [SerializeField] private float _boostStrength = 1.67f;
     [SerializeField] private float _bouncerStrength = 1.0f;
 
     private Rigidbody _playerRigidBody;
@@ -54,7 +54,7 @@ public class PlayerController : MonoBehaviour, ISubscriber<GameOverSignal>, ISub
         // Check if player boosted
         if (_inputManager.PlayerBoosted() && !_isBoosting)
         {
-            _playerRigidBody.AddForce(move * _playerSpeed * _boostStrength * Time.deltaTime, ForceMode.Impulse);
+            _playerRigidBody.AddForce(move * _playerSpeed * _boostStrength, ForceMode.Impulse);
             StartCoroutine(BoostControl());
         }
     }
